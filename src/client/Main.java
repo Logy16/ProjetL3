@@ -1,4 +1,4 @@
-import frame.InterfaceUtilisateur;
+package client;
 
 public class Main {
 

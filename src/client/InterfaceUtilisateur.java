@@ -1,9 +1,8 @@
-package frame;
+package client;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -18,12 +17,19 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
-import pasencoredenom.Fil;
+import global.Agents;
+import global.Fil;
+import global.Groupe;
+import global.Utilisateur;
+
 
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5093493472239406706L;
 	private JLabel nomTicket = new JLabel("DU BLABLA DE TEST");
 	private JLabel txtSaisie = new JLabel("Envoyer un message dans : ");
 	private List<Fil> listeFil = new ArrayList<>();
@@ -58,8 +64,11 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		listeTickets.setLayout(new GridLayout(10, 1, 0, 5));
 		
 		bouton.add(new Button("On test un boutton"));
-		listeFil.add(new Fil("Sujet jeux vidéo"));
-		listeFil.add(new Fil("Sujet cours POOMO"));
+		
+		Groupe groupeTest = new Groupe("TDA4");
+		Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
+		listeFil.add(new Fil("Sujet jeux vidéo",groupeTest, test));
+		listeFil.add(new Fil("Sujet cours POOMO",groupeTest, test));
 		for(int i=0; i<listeFil.size(); i++) {
 			listeTickets.add(new Button(listeFil.get(i).getSujet()));
 		}
