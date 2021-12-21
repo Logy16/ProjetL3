@@ -98,6 +98,16 @@ public interface IServer {
 	public void envoyerMessage(String message, Utilisateur envoyeur, Fil fil);
 
 	/**
+	 * Permet de lire tout les messages non lus dans un fil pour un utilisateur, a
+	 * utiliser lorsque un utilisateur ouvre un fil
+	 * 
+	 * @param fil     : fil dans lequel les messages sont lus
+	 * @param lecteur : utilisateur ouvrant le fil
+	 * @author Nemo
+	 **/
+	public void lireMessageFil(Fil fil, Utilisateur lecteur);
+
+	/**
 	 * Permet d'obtenir l'Etat du message passé en paramètre
 	 * 
 	 * @param message : message dont on souhaite obtenir l'etat

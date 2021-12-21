@@ -130,6 +130,17 @@ public class Server implements IServer {
 	}
 
 	@Override
+	public void lireMessageFil(Fil fil, Utilisateur lecteur) {
+		if (testIfUserInGroupe(lecteur, fil.getGroupe()) || fil.getCreateur().equals(lecteur)) {
+			for (Message messageFil : fil.getMessages()) {
+				if (getMessageStatus(messageFil) != Etat.LU) {
+					api.hasReadMessage(messageFil, lecteur);
+				}
+			}
+		}
+	}
+
+	@Override
 	public Etat getMessageStatus(Message message) {
 		return api.getMessageState(message);
 	}
