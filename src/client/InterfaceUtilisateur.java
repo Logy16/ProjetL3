@@ -23,9 +23,8 @@ import global.Fil;
 import global.Groupe;
 import global.Utilisateur;
 
-
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
-	
+
 	/**
 	 * 
 	 */
@@ -36,11 +35,11 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 	public InterfaceUtilisateur() {
 		super();
-		//this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		// this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setTitle("Titre");
-		
-	//Créations des composants
-		//Créations des Panels
+
+		// Créations des composants
+		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel gauche = new JPanel();
 		JPanel bouton = new JPanel();
@@ -49,89 +48,91 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		JPanel subjectTicket = new JPanel();
 		JPanel affichageMess = new JPanel();
 		JPanel saisieTxt = new JPanel();
-		JTextArea zoneSaisie = new JTextArea(3,100);
-		
-		//Paramétrages des composants
+		JTextArea zoneSaisie = new JTextArea(3, 100);
+
+		// Paramétrages des composants
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(gauche, BorderLayout.WEST);
 		contentPane.add(droite, BorderLayout.CENTER);
-		
+
 		gauche.setLayout(new BorderLayout());
 		gauche.add(bouton, BorderLayout.NORTH);
 		gauche.add(listeTickets, BorderLayout.CENTER);
-		
+
 		bouton.setLayout(new FlowLayout());
 		listeTickets.setLayout(new GridLayout(10, 1, 0, 5));
-		
-		bouton.add(new Button("On test un boutton"));
-		
+
+		Button testButton = new Button("On test un boutton");
+		bouton.add(testButton);
+
 		Groupe groupeTest = new Groupe("TDA4");
 		Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
-		listeFil.add(new Fil("Sujet jeux vidéo",groupeTest, test));
-		listeFil.add(new Fil("Sujet cours POOMO",groupeTest, test));
-		for(int i=0; i<listeFil.size(); i++) {
+		listeFil.add(new Fil("Sujet jeux vidéo", groupeTest, test));
+		listeFil.add(new Fil("Sujet cours POOMO", groupeTest, test));
+		for (int i = 0; i < listeFil.size(); i++) {
 			listeTickets.add(new Button(listeFil.get(i).getSujet()));
 		}
-		
+
 		droite.setLayout(new BorderLayout());
 		droite.add(subjectTicket, BorderLayout.NORTH);
 		droite.add(affichageMess, BorderLayout.CENTER);
 		droite.add(saisieTxt, BorderLayout.SOUTH);
-		
+
 		subjectTicket.setLayout(new FlowLayout());
 		affichageMess.setLayout(new GridLayout());
 		saisieTxt.setLayout(new FlowLayout());
-		
-		
+
 		subjectTicket.add(nomTicket);
 		saisieTxt.add(txtSaisie);
 		saisieTxt.add(zoneSaisie);
-		
-		
+
 		contentPane.setBackground(Color.LIGHT_GRAY);
 		bouton.setBackground(Color.RED);
 		listeTickets.setBackground(Color.BLUE);
 		subjectTicket.setBackground(Color.GREEN);
 		affichageMess.setBackground(Color.YELLOW);
 		saisieTxt.setBackground(Color.PINK);
-		
-		//Gestion des évènements
-	
+
+		// Gestion des évènements
+
 		this.addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent e) {
 				quitter();
 			}
 		});
-		
-	//Paramétrage de la fenêtre
+
+		// Paramétrage de la fenêtre
 		this.setContentPane(contentPane);
 		this.pack();
-		
+
 	}
-			
+
 	/**
 	 * Permet de quitter l'application si l'utilisateur répond oui
 	 */
 	public void quitter() {
-		int reponse = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir quitter?","Quitter l'application?",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+		int reponse = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir quitter?", "Quitter l'application?",
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if (reponse == JOptionPane.YES_OPTION) {
-			System.exit(0);  
-		/*}else if(reponse == JOptionPane.NO_OPTION) {
-			int reponseMenu = JOptionPane.showConfirmDialog(this, "Voulez-vous revenir au menu principal?","Continuer?",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
-			if (reponseMenu == JOptionPane.YES_OPTION) {
-				MenuBatailleNavale MBN = new MenuBatailleNavale();
-				MBN.setVisible(true);
-				this.dispose();
-			}*/
+			System.exit(0);
+			/*
+			 * }else if(reponse == JOptionPane.NO_OPTION) { int reponseMenu =
+			 * JOptionPane.showConfirmDialog(this,
+			 * "Voulez-vous revenir au menu principal?","Continuer?",JOptionPane.
+			 * YES_NO_OPTION,JOptionPane.WARNING_MESSAGE); if (reponseMenu ==
+			 * JOptionPane.YES_OPTION) { MenuBatailleNavale MBN = new MenuBatailleNavale();
+			 * MBN.setVisible(true); this.dispose(); }
+			 */
 		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		/*if(e.getSource() == 2) {
-			this.nomTicket.setText();
-		}*/
-		
-	} 
-	
+		/*
+		 * if(e.getSource() == 2) { this.nomTicket.setText(); }
+		 */
+
+	}
+
 }
