@@ -95,14 +95,21 @@ public class SimpleAPIServerSQL implements APIServerSQL
 				type = UTILISATEUR_TEXT;
 			}
 			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM Utilisateurs WHERE id = '"+utilisateur.getIdentifiant()+"'");
-			stmt.execute("INSERT INTO Utilisateurs (id, prenom, nom, password, type) VALUES ('"+toSQLString(utilisateur.getIdentifiant())+"', '"+toSQLString(utilisateur.getPrenom())+"', '"+toSQLString(utilisateur.getNom())+"', '"+toSQLString(utilisateur.getHashedPassword())+"', '"+toSQLString(type)+"')");
 			stmt.execute("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"+toSQLString(utilisateur.getIdentifiant())+"'");
 			for(Groupe g : utilisateur.getGroupes()) {
 				stmt.execute("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"+toSQLString(utilisateur.getIdentifiant())+"', '"+toSQLString(g.getNom())+"')");
 			}
-			stmt.close();
-			return false;
+			Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
+			
+			if(u != null) {
+				stmt.execute("UPDATE Utilisateurs SET id='"+toSQLString(utilisateur.getIdentifiant())+"', prenom='"+toSQLString(utilisateur.getPrenom())+"', nom='"+toSQLString(utilisateur.getNom())+"', password='"+toSQLString(utilisateur.getHashedPassword())+"', type='"+toSQLString(type)+"' WHERE id='"+toSQLString(utilisateur.getIdentifiant())+"'");
+				stmt.close();
+				return true;
+			} else {
+				stmt.execute("INSERT INTO Utilisateurs (id, prenom, nom, password, type) VALUES ('"+toSQLString(utilisateur.getIdentifiant())+"', '"+toSQLString(utilisateur.getPrenom())+"', '"+toSQLString(utilisateur.getNom())+"', '"+toSQLString(utilisateur.getHashedPassword())+"', '"+toSQLString(type)+"')");
+				stmt.close();
+				return false;
+			}
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -417,8 +424,9 @@ public class SimpleAPIServerSQL implements APIServerSQL
 	public void removeUtilisateur(Utilisateur utilisateur) {
 		try {
 			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM Utilisateurs WHERE id = '"+utilisateur.getIdentifiant()+"'");
 			stmt.execute("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"+toSQLString(utilisateur.getIdentifiant())+"'");
+			stmt.execute("DELETE FROM Utilisateurs WHERE id = '"+utilisateur.getIdentifiant()+"'");
+			
 			stmt.close();
 			
 		} catch (SQLException e) {
@@ -431,8 +439,8 @@ public class SimpleAPIServerSQL implements APIServerSQL
 	public void removeGroupe(Groupe groupe) {
 		try {
 			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM Groupes WHERE nomG = '"+groupe.getNom()+"'");
 			stmt.execute("DELETE FROM LinkUtilisateurGroupe WHERE lug_g_id = '"+toSQLString(groupe.getNom())+"'");
+			stmt.execute("DELETE FROM Groupes WHERE nomG = '"+groupe.getNom()+"'");
 			stmt.close();
 			
 		} catch (SQLException e) {
