@@ -165,13 +165,11 @@ public class Server implements IServer {
 			Groupe groupeDel = listIterator.next();
 			groupeDel.removeUtilisateurs(user);
 		}
-		user = null;
 	}
 
 	@Override
 	public void supprimerGroupe(Groupe groupe) {
 		api.removeGroupe(groupe);
 		groupe.removeUtilisateurs(groupe.getUtilisateurs());
-		groupe = null;
 	}
 }
