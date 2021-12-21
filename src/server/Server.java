@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Iterator;
 
 import global.Agents;
 import global.Etat;
@@ -133,14 +134,33 @@ public class Server implements IServer {
 		return api.getMessageState(message);
 	}
 
+	@Override
 	public void modifierNomUser(Utilisateur user, String newNom) {
 		user.setNom(newNom);
 		api.setUtilisateur(user);
 	}
 
+	@Override
 	public void modifierPrenomUser(Utilisateur user, String newPrenom) {
 		user.setPrenom(newPrenom);
 		api.setUtilisateur(user);
 	}
 
+	@Override
+	public void supprimerUtilisateur(Utilisateur user) {
+		api.removeUtilisateur(user);
+		Iterator<Groupe> listIterator = user.getGroupes().iterator();
+		for (; listIterator.hasNext();) {
+			Groupe groupeDel = listIterator.next();
+			groupeDel.removeUtilisateurs(user);
+		}
+		user = null;
+	}
+
+	@Override
+	public void supprimerGroupe(Groupe groupe) {
+		api.removeGroupe(groupe);
+		groupe.removeUtilisateurs(groupe.getUtilisateurs());
+		groupe = null;
+	}
 }

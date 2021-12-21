@@ -106,4 +106,41 @@ public interface IServer {
 	 **/
 	public Etat getMessageStatus(Message message);
 
+	/**
+	 * Permet de modifier le nom d'un utilisateur et de le mettre à jour dans la
+	 * base de donnée
+	 * 
+	 * @param user   : utilisateur dont il faut modifier le nom
+	 * @param newNom : nouveau nom à attribuer à l'utilisateur
+	 * @author Nemo
+	 **/
+	public void modifierNomUser(Utilisateur user, String newNom);
+
+	/**
+	 * Permet de modifier le prénom d'un utilisateur et de le mettre à jour dans la
+	 * base de donnée
+	 * 
+	 * @param user      : utilisateur dont il faut modifier le prénom
+	 * @param newPrenom : nouveau prénom à attribuer à l'utilisateur
+	 * @author Nemo
+	 **/
+	public void modifierPrenomUser(Utilisateur user, String newPrenom);
+
+	/**
+	 * Permet de supprimer un utilisateur de la base de donnée et met à jour les
+	 * liens avec cet utilisateur
+	 * 
+	 * @param user : utilisateur à supprimer
+	 * @author Nemo
+	 **/
+	public void supprimerUtilisateur(Utilisateur user);
+
+	/**
+	 * Permet de supprimer un groupe de la base de donnée et met à jour les liens
+	 * avec ce groupe
+	 * 
+	 * @param groupe : groupe à supprimer
+	 * @author Nemo
+	 **/
+	public void supprimerGroupe(Groupe groupe);
 }
