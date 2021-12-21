@@ -413,5 +413,33 @@ public class SimpleAPIServerSQL implements APIServerSQL
 		
 	}
 
+	@Override
+	public void removeUtilisateur(Utilisateur utilisateur) {
+		try {
+			Statement stmt = connection.createStatement();
+			stmt.execute("DELETE FROM Utilisateurs WHERE id = '"+utilisateur.getIdentifiant()+"'");
+			stmt.execute("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"+toSQLString(utilisateur.getIdentifiant())+"'");
+			stmt.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void removeGroupe(Groupe groupe) {
+		try {
+			Statement stmt = connection.createStatement();
+			stmt.execute("DELETE FROM Groupes WHERE nomG = '"+groupe.getNom()+"'");
+			stmt.execute("DELETE FROM LinkUtilisateurGroupe WHERE lug_g_id = '"+toSQLString(groupe.getNom())+"'");
+			stmt.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 
 }

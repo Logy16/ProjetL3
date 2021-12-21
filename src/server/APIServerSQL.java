@@ -47,6 +47,21 @@ public interface APIServerSQL {
 	public boolean setUtilisateur(Utilisateur utilisateur);
 
 	/**
+	 * Permet de delete un utilisateur à la base de données.
+	 * Si l'utilisateur est déjà dans la base de données, met à jour ses valeurs, et le crée sinon.
+	 * @param utilisateur : L'utilisateur à remove de la base de données
+	 * @author Liouss
+	 * **/
+	public void removeUtilisateur(Utilisateur utilisateur);
+	
+	/**
+	 * Permet de delete un groupe de la base de données.
+	 * @param utilisateur : L'utilisateur à remove de la base de données
+	 * @author Liouss
+	 * **/
+	public void removeGroupe(Groupe groupe);
+	
+	/**
 	 * Permet d'obtenir un fil grâce à son titre
 	 * 
 	 * @param titre : titre du fil qu'on recherche
