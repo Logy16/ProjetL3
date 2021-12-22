@@ -29,6 +29,10 @@ public class Groupe implements Comparable<Groupe> {
 		utilisateurs.toArray(returned);
 		return returned;
 	}
+	
+	public int getNbUtilisateurs() {
+		return utilisateurs.size();
+	}
 
 	public void addUtilisateurs(Utilisateur... utilisateurs) {
 		List<Utilisateur> utilisateurs2 = Arrays.asList(utilisateurs);

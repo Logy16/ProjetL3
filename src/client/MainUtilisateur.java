@@ -1,6 +1,6 @@
 package client;
 
-public class Main {
+public class MainUtilisateur {
 
 	public static void main(String[] args) {
 

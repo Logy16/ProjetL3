@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,11 +13,15 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import global.Agents;
 import global.Fil;
@@ -25,9 +30,6 @@ import global.Utilisateur;
 
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5093493472239406706L;
 	private JLabel nomTicket = new JLabel("DU BLABLA DE TEST");
 	private JLabel txtSaisie = new JLabel("Envoyer un message dans : ");
@@ -35,20 +37,44 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 	public InterfaceUtilisateur() {
 		super();
+		this.setTitle("Interface Utilisateur");
 		// this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.setTitle("Titre");
 
-		// Créations des composants
+	// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel gauche = new JPanel();
 		JPanel bouton = new JPanel();
-		JPanel listeTickets = new JPanel();
+		
+		Groupe groupeTest1 = new Groupe("TDA1");
+		Groupe groupeTest2 = new Groupe("TDA2");
+		Groupe groupeTest3 = new Groupe("TDA3");
+		Groupe groupeTest4 = new Groupe("TDA4");
+		Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
+		listeFil.add(new Fil("Sujet jeux vidéo", groupeTest1, test));
+		listeFil.add(new Fil("Sujet 1", groupeTest1, test));
+		listeFil.add(new Fil("Sujet 2", groupeTest2, test));
+		listeFil.add(new Fil("Sujet jeux vidéo", groupeTest3, test));
+		listeFil.add(new Fil("Sujet cours POOMO", groupeTest4, test));
+		
+		JTree listeTickets;
+		DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Racine");
+		for(int i = 0; i<listeFil.size(); i++) {
+			DefaultMutableTreeNode noeud = new DefaultMutableTreeNode(listeFil.get(i).getGroupe().getNom());
+			racine.add(noeud);
+			for(int j = 0; j<listeFil.size(); j++) {
+				DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(listeFil.get(j).getSujet());
+				noeud.add(feuille);
+			}		
+		}
+		
+		
+		listeTickets = new JTree(racine);
 		JPanel droite = new JPanel();
 		JPanel subjectTicket = new JPanel();
 		JPanel affichageMess = new JPanel();
 		JPanel saisieTxt = new JPanel();
-		JTextArea zoneSaisie = new JTextArea(3, 100);
+		JTextArea zoneSaisie = new JTextArea(2, 100);
 
 		// Paramétrages des composants
 		contentPane.setLayout(new BorderLayout());
@@ -61,17 +87,10 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 		bouton.setLayout(new FlowLayout());
 		listeTickets.setLayout(new GridLayout(10, 1, 0, 5));
+		listeTickets.setRootVisible(false);
 
 		Button testButton = new Button("On test un boutton");
 		bouton.add(testButton);
-
-		Groupe groupeTest = new Groupe("TDA4");
-		Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
-		listeFil.add(new Fil("Sujet jeux vidéo", groupeTest, test));
-		listeFil.add(new Fil("Sujet cours POOMO", groupeTest, test));
-		for (int i = 0; i < listeFil.size(); i++) {
-			listeTickets.add(new Button(listeFil.get(i).getSujet()));
-		}
 
 		droite.setLayout(new BorderLayout());
 		droite.add(subjectTicket, BorderLayout.NORTH);
@@ -85,13 +104,26 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		subjectTicket.add(nomTicket);
 		saisieTxt.add(txtSaisie);
 		saisieTxt.add(zoneSaisie);
+		
+		//Taille du texte
+		listeTickets.setFont(new Font("Arial",0,15));
+		bouton.setFont(new Font("Arial",0,15));
+
+		//Ajout de bordures
+		contentPane.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEmptyBorder(5,5,5,5),
+				BorderFactory.createLoweredSoftBevelBorder()));
+		gauche.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLoweredBevelBorder(),
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		droite.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
 		contentPane.setBackground(Color.LIGHT_GRAY);
-		bouton.setBackground(Color.RED);
+		/*bouton.setBackground(Color.RED);
 		listeTickets.setBackground(Color.BLUE);
 		subjectTicket.setBackground(Color.GREEN);
 		affichageMess.setBackground(Color.YELLOW);
-		saisieTxt.setBackground(Color.PINK);
+		saisieTxt.setBackground(Color.PINK);*/
 
 		// Gestion des évènements
 
@@ -104,6 +136,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 		// Paramétrage de la fenêtre
 		this.setContentPane(contentPane);
+		this.setIconImage(new ImageIcon(getClass().getResource("/img/discussion.png")).getImage());
 		this.pack();
 
 	}
