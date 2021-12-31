@@ -3,6 +3,7 @@ package global;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 public abstract class Utilisateur {
 	protected String nom;
 	protected String prenom;
@@ -17,7 +18,7 @@ public abstract class Utilisateur {
 	 * @param identifiant : identifiant de l'utilisateur
 	 * @param password : mot de passe de l'utilisateur
 	 * @param gs : la liste des groupes de l'utilisateur (vararg)
-	 */
+	**/
 	public Utilisateur(String nom, String prenom, String identifiant, String password, Groupe... gs) {
 		this.nom = nom;
 		this.prenom = prenom;
@@ -27,21 +28,31 @@ public abstract class Utilisateur {
 			g.addUtilisateurs(this);
 		}
 	}
-	
+
 	public String getNom() {
 		return nom;
 	}
+
 	public String getPrenom() {
 		return prenom;
 	}
-	
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public void setPrenom(String prenom) {
+		this.prenom = prenom;
+	}
+
 	/**
-	 * Toujours préférer utiliser groupe.ajouterUtilisateurs ou groupe.removeUtilisateurs pour modifier
-	 * **/
-	public Set<Groupe> getGroupes(){
+	 * Toujours préférer utiliser groupe.ajouterUtilisateurs ou
+	 * groupe.removeUtilisateurs pour modifier
+	 **/
+	public Set<Groupe> getGroupes() {
 		return groupes;
 	}
-	
+
 	public String getIdentifiant() {
 		return identifiant;
 	}
@@ -49,15 +60,17 @@ public abstract class Utilisateur {
 	public String getPassword() {
 		return password;
 	}
-	
+
+	@Override
 	public String toString() {
 		return "[Nom : "+nom+", Prenom : "+prenom+", Identifiant : "+identifiant+", MDP "+password+"]";
 	}
+
 	@Override
 	public boolean equals(Object o) {
-		if(o == null || o.getClass() != getClass()) {
+		if (o == null || o.getClass() != getClass()) {
 			return false;
 		}
-		return ((Utilisateur)o).identifiant.equals(identifiant);
+		return ((Utilisateur) o).identifiant.equals(identifiant);
 	}
 }
