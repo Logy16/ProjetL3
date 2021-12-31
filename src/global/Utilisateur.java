@@ -1,6 +1,6 @@
 package global;
 
-import java.io.UnsupportedEncodingException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public abstract class Utilisateur {
+public abstract class Utilisateur implements Serializable {
+	private static final long serialVersionUID = -5647550023167220838L;
+
 	protected String nom;
 	protected String prenom;
 	protected SortedSet<Groupe> groupes = new TreeSet<>();
@@ -30,13 +32,9 @@ public abstract class Utilisateur {
 		this.identifiant = identifiant;
 		try {
 			this.hashedPassword = new String(
-					MessageDigest.getInstance("md5").digest(notHashedPassword.getBytes("UTF-8")),
+					MessageDigest.getInstance("md5").digest(notHashedPassword.getBytes(StandardCharsets.UTF_8)),
 					StandardCharsets.UTF_8);
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		for (Groupe g : gs) {

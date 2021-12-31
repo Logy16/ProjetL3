@@ -1,10 +1,12 @@
 package global;
 
+import java.io.Serializable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class Fil implements Comparable<Fil> {
+public class Fil implements Comparable<Fil>, Serializable {
 
+	private static final long serialVersionUID = -2595991243801274677L;
 	private String sujet;
 	private SortedSet<Message> messages = new TreeSet<>();
 	private Groupe groupe;

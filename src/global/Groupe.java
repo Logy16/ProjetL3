@@ -1,11 +1,14 @@
 package global;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Groupe implements Comparable<Groupe> {
+public class Groupe implements Comparable<Groupe>, Serializable {
+	private static final long serialVersionUID = -4010471049004553231L;
+
 	private String nom;
 	private Set<Utilisateur> utilisateurs = new HashSet<>();
 
@@ -29,7 +32,7 @@ public class Groupe implements Comparable<Groupe> {
 		utilisateurs.toArray(returned);
 		return returned;
 	}
-	
+
 	public int getNbUtilisateurs() {
 		return utilisateurs.size();
 	}
