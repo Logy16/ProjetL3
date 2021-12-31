@@ -256,8 +256,8 @@ public class Server {
 					MessageDigest.getInstance("md5").digest(dto.getPassword().getBytes(StandardCharsets.UTF_8)),
 					StandardCharsets.UTF_8);
 			Utilisateur utilisateurTest = api.getUtilisateur(dto.getLogin());
-			System.out.println(utilisateurTest.getHashedPassword() + "\n" + dto.getPassword());
-			return utilisateurTest.getHashedPassword().equals(hashedPassword)
+			System.out.println(utilisateurTest.getPassword() + "\n" + dto.getPassword());
+			return utilisateurTest.getPassword().equals(hashedPassword)
 					&& utilisateurTest.getIdentifiant().equals(dto.getLogin());
 		}
 

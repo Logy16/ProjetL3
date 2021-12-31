@@ -14,7 +14,7 @@ public class UtilisateurCampus extends Utilisateur {
 	
 	@Override
 	public String toString() {
-		return "[(UTILISATEUR) Nom : "+nom+", Prenom : "+prenom+", Identifiant : "+identifiant+", MDP HASH "+hashedPassword+"]";
+		return "[(UTILISATEUR) Nom : "+nom+", Prenom : "+prenom+", Identifiant : "+identifiant+", MDP "+password+"]";
 	}
 
 }
