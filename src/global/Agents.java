@@ -15,6 +15,6 @@ public class Agents extends Utilisateur {
 	
 	@Override
 	public String toString() {
-		return "[(AGENT) Nom : "+nom+", Prenom : "+prenom+", Identifiant : "+identifiant+", MDP HASH "+hashedPassword+"]";
+		return "[(AGENT) Nom : "+nom+", Prenom : "+prenom+", Identifiant : "+identifiant+", MDP "+password+"]";
 	}
 }
