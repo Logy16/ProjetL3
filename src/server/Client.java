@@ -10,11 +10,13 @@ import global.Groupe;
 import global.Utilisateur;
 import global.dto.AddUserDto;
 import global.dto.AddUserDto.TypeUser;
+import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
 import global.dto.DemandeDeConnexionDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
+import global.dto.LireFilDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 
@@ -53,8 +55,11 @@ public class Client {
 			// UtilisateurCampus nemo = new Agents("BOUILLON", "Nemo", "Pastorale",
 			// "testmdpnemo", tpa41);
 			if (client.demandeConnexion("Pastorale", "testmdpnemo")) {
-				client.demandeCreationFil("Nouveau fil", newUser, newGroupe, "Ceci est un nouveau fil");
+				Fil newFil = client.demandeCreationFil("Nouveau fil", newUser, newGroupe, "Ceci est un nouveau fil");
+				client.sendMessage("MessageTest", newUser, newFil);
 			}
+			Groupe newGroupe2 = client.createGroupe("Projet");
+			client.addUserToGroupe(newUser, newGroupe2);
 			while (true)
 				;
 		} catch (IOException | ClassNotFoundException e) {
@@ -115,14 +120,25 @@ public class Client {
 		}
 	}
 
-	public void demandeCreationFil(String nomFil, Utilisateur createur, Groupe groupe, String premierMessage)
-			throws IOException {
+	public Fil demandeCreationFil(String nomFil, Utilisateur createur, Groupe groupe, String premierMessage)
+			throws IOException, ClassNotFoundException {
 		CreationFilDto fil = new CreationFilDto(groupe, nomFil, createur, premierMessage);
 		objectOutputStream.writeObject(fil);
+		return (Fil) objectInputStream.readObject();
 	}
 
 	public void sendMessage(String message, Utilisateur envoyeur, Fil fil) throws IOException {
 		SendMessageDto sendMessage = new SendMessageDto(message, envoyeur, fil);
 		objectOutputStream.writeObject(sendMessage);
+	}
+
+	public void addUserToGroupe(Utilisateur user, Groupe groupe) throws IOException {
+		AddUserToGroupeDto addUser = new AddUserToGroupeDto(user, groupe);
+		objectOutputStream.writeObject(addUser);
+	}
+
+	public void lireMessagesFil(Fil fil, Utilisateur utilisateur) throws IOException {
+		LireFilDto lireFil = new LireFilDto(utilisateur, fil);
+		objectOutputStream.writeObject(lireFil);
 	}
 }

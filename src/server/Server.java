@@ -20,11 +20,13 @@ import global.Utilisateur;
 import global.UtilisateurCampus;
 import global.dto.AddUserDto;
 import global.dto.AddUserDto.TypeUser;
+import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
 import global.dto.DemandeDeConnexionDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
+import global.dto.LireFilDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 
@@ -99,7 +101,8 @@ public class Server {
 					switch (globalDto.getOperation()) {
 					case CREATION_FIL:
 						CreationFilDto dtoCF = (CreationFilDto) globalDto;
-						demandeCreationFil(dtoCF);
+						Fil newFil = demandeCreationFil(dtoCF);
+						objectOutputStream.writeObject(newFil);
 						break;
 					case DEMANDE_CONNEXION:
 						DemandeDeConnexionDto dtoDDC = (DemandeDeConnexionDto) globalDto;
@@ -132,6 +135,14 @@ public class Server {
 						}
 						objectOutputStream.writeObject(newUser);
 						break;
+					case ADD_USER_TO_GROUPE:
+						AddUserToGroupeDto dtoAUTG = (AddUserToGroupeDto) globalDto;
+						addUserToGroupe(dtoAUTG.getUser(), dtoAUTG.getGroupe());
+						break;
+					case LIRE_FIL:
+						LireFilDto dtoLF = (LireFilDto) globalDto;
+						lireMessageFil(dtoLF.getFil(), dtoLF.getUser());
+						break;
 					default:
 						break;
 					}
@@ -160,7 +171,7 @@ public class Server {
 			}
 		}
 
-		public void demandeCreationFil(CreationFilDto dto) {
+		public Fil demandeCreationFil(CreationFilDto dto) {
 			if (dto.getChaine() == null) {
 				throw new IllegalArgumentException("Chaine cannot be null");
 			}
@@ -178,6 +189,7 @@ public class Server {
 				api.hasSentMessage(premierMessage, utilisateurFil);
 			}
 			api.hasReadMessage(premierMessage, dto.getUtilisateur());
+			return fil;
 		}
 
 		public boolean demandeConnexion(DemandeDeConnexionDto dto) {
