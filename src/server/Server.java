@@ -1,15 +1,10 @@
 package server;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,7 +18,10 @@ import global.Groupe;
 import global.Message;
 import global.Utilisateur;
 import global.UtilisateurCampus;
+import global.dto.AddUserDto;
+import global.dto.AddUserDto.TypeUser;
 import global.dto.CreationFilDto;
+import global.dto.CreerGroupeDto;
 import global.dto.DemandeDeConnexionDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
@@ -48,7 +46,7 @@ public class Server {
 			e.printStackTrace();
 		}
 
-		// accepte les connexions de chaque client et crée un nouveau thread pour
+		// accepte les connexions de chaque client et crÃ©e un nouveau thread pour
 		// chacun
 		while (true) {
 			try {
@@ -57,12 +55,7 @@ public class Server {
 					System.out.println("Waiting client connection ...");
 					socket = serverSocket.accept();
 					System.out.println("Client attempting connection ...");
-					InputStream inputStream = socket.getInputStream();
-					System.out.println(inputStream);
-					OutputStream outputStream = socket.getOutputStream();
-					System.out.println(outputStream);
-					System.out.println("Launching thread");
-					ServerThread sThread = new ServerThread(socket, api, inputStream, outputStream);
+					new ServerThread(socket, api);
 					System.out.println("Client connected!");
 				}
 			} catch (NullPointerException | IOException e) {
@@ -72,105 +65,6 @@ public class Server {
 		}
 	}
 
-//****************************//
-// METHODES INTERFACE SERVEUR //
-//****************************//
-
-	public void creerGroupe(String nom) {
-		Groupe groupe = new Groupe(nom);
-		api.createGroupe(groupe);
-	}
-
-	public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
-		boolean userInGroupe = false;
-		for (Utilisateur utilisateurInGroupe : groupe.getUtilisateurs()) {
-			if (utilisateurInGroupe.equals(user)) {
-				userInGroupe = true;
-			}
-		}
-		return userInGroupe;
-	}
-
-	public void addUserToGroupe(Utilisateur user, Groupe groupe) {
-		if (!testIfUserInGroupe(user, groupe)) {
-			groupe.addUtilisateurs(user);
-			api.setUtilisateur(user);
-		}
-	}
-
-	public void addAgent(String nom, String prenom, String id, String notHashedPassword, Groupe... groupes) {
-		boolean ajoute = false;
-		Utilisateur newUser = new Agents(nom, prenom, id, notHashedPassword, groupes);
-		for (Groupe groupeLink : groupes) {
-			for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
-				if (utilisateurLink.equals(newUser)) {
-					ajoute = true;
-				}
-			}
-			if (!ajoute) {
-				groupeLink.addUtilisateurs(newUser);
-			}
-			ajoute = false;
-		}
-		api.setUtilisateur(newUser);
-	}
-
-	public void addUtilisateurCampus(String nom, String prenom, String id, String notHashedPassword,
-			Groupe... groupes) {
-		boolean ajoute = false;
-		Utilisateur newUser = new UtilisateurCampus(nom, prenom, id, notHashedPassword, groupes);
-		for (Groupe groupeLink : groupes) {
-			for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
-				if (utilisateurLink.equals(newUser)) {
-					ajoute = true;
-				}
-			}
-			if (!ajoute) {
-				groupeLink.addUtilisateurs(newUser);
-			}
-			ajoute = false;
-		}
-		api.setUtilisateur(newUser);
-	}
-
-	public void lireMessageFil(Fil fil, Utilisateur lecteur) {
-		if (testIfUserInGroupe(lecteur, fil.getGroupe()) || fil.getCreateur().equals(lecteur)) {
-			for (Message messageFil : fil.getMessages()) {
-				if (getMessageStatus(messageFil) != Etat.LU) {
-					api.hasReadMessage(messageFil, lecteur);
-				}
-			}
-		}
-	}
-
-	public Etat getMessageStatus(Message message) {
-		return api.getMessageState(message);
-	}
-
-	public void modifierNomUser(Utilisateur user, String newNom) {
-		user.setNom(newNom);
-		api.setUtilisateur(user);
-	}
-
-	public void modifierPrenomUser(Utilisateur user, String newPrenom) {
-		user.setPrenom(newPrenom);
-		api.setUtilisateur(user);
-	}
-
-	public void supprimerUtilisateur(Utilisateur user) {
-		api.removeUtilisateur(user);
-		Iterator<Groupe> listIterator = user.getGroupes().iterator();
-		for (; listIterator.hasNext();) {
-			Groupe groupeDel = listIterator.next();
-			groupeDel.removeUtilisateurs(user);
-		}
-	}
-
-	public void supprimerGroupe(Groupe groupe) {
-		api.removeGroupe(groupe);
-		groupe.removeUtilisateurs(groupe.getUtilisateurs());
-	}
-
 //**********************************************//
 // CLASSE INTERNE: 1 THREAD PAR CLIENT CONNECTE //
 //**********************************************//
@@ -178,24 +72,29 @@ public class Server {
 	private static class ServerThread extends Thread {
 		private Socket socket;
 		private APIServerSQL api;
-		private InputStream inputStream;
-		private OutputStream outputStream;
+		private ObjectInputStream objectInputStream;
+		private ObjectOutputStream objectOutputStream;
 
-		public ServerThread(Socket s, APIServerSQL api, InputStream inputStream, OutputStream outputStream) {
-			socket = s;
-			this.api = api;
-			this.inputStream = inputStream;
-			this.outputStream = outputStream;
-
+		public ServerThread(Socket s, APIServerSQL api) {
+			try {
+				socket = s;
+				this.api = api;
+				this.objectInputStream = new ObjectInputStream(s.getInputStream());
+				SimpleDto etablissementConnexion = (SimpleDto) objectInputStream.readObject();
+				this.objectOutputStream = new ObjectOutputStream(s.getOutputStream());
+				objectOutputStream.writeObject(etablissementConnexion);
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+				closeEverything(socket, objectInputStream, objectOutputStream);
+			}
 			System.out.println("Created client thread ...");
 			this.start();
 		}
 
 		@Override
 		public void run() {
-			while (!socket.isClosed()) {
-
-				try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+			while (socket.isConnected()) {
+				try {
 					GlobalDto globalDto = (GlobalDto) objectInputStream.readObject();
 					switch (globalDto.getOperation()) {
 					case CREATION_FIL:
@@ -204,30 +103,60 @@ public class Server {
 						break;
 					case DEMANDE_CONNEXION:
 						DemandeDeConnexionDto dtoDDC = (DemandeDeConnexionDto) globalDto;
-						try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-							if (demandeConnexion(dtoDDC)) {
-								SimpleDto connexionReussie = new SimpleDto(TypeOperation.CONNEXION_REUSSIE);
-								objectOutputStream.writeObject(connexionReussie);
-							} else {
-								SimpleDto connexionEchouee = new SimpleDto(TypeOperation.CONNEXION_ECHOUEE);
-								objectOutputStream.writeObject(connexionEchouee);
-							}
-						} catch (NoSuchAlgorithmException | IOException e) {
-							e.printStackTrace();
+						if (demandeConnexion(dtoDDC)) {
+							SimpleDto connexionReussie = new SimpleDto(TypeOperation.CONNEXION_REUSSIE);
+							objectOutputStream.writeObject(connexionReussie);
+						} else {
+							SimpleDto connexionEchouee = new SimpleDto(TypeOperation.CONNEXION_ECHOUEE);
+							objectOutputStream.writeObject(connexionEchouee);
 						}
 						break;
 					case SEND_MESSAGE:
 						SendMessageDto dtoSM = (SendMessageDto) globalDto;
 						sendMessage(dtoSM);
 						break;
+					case CREER_GROUPE:
+						CreerGroupeDto dtoCG = (CreerGroupeDto) globalDto;
+						Groupe newGroupe = creerGroupe(dtoCG);
+						objectOutputStream.writeObject(newGroupe);
+						break;
+					case ADD_USER:
+						Utilisateur newUser;
+						AddUserDto dtoAU = (AddUserDto) globalDto;
+						if (dtoAU.getType() == TypeUser.AGENT) {
+							newUser = addAgent(dtoAU.getNom(), dtoAU.getPrenom(), dtoAU.getId(), dtoAU.getPassword(),
+									dtoAU.getGroupes());
+						} else {
+							newUser = addUtilisateurCampus(dtoAU.getNom(), dtoAU.getPrenom(), dtoAU.getId(),
+									dtoAU.getPassword(), dtoAU.getGroupes());
+						}
+						objectOutputStream.writeObject(newUser);
+						break;
 					default:
 						break;
 					}
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+					closeEverything(socket, objectInputStream, objectOutputStream);
+					break;
 				}
+			}
+		}
+
+		public void closeEverything(Socket s, ObjectInputStream objectInputStream,
+				ObjectOutputStream objectOutputStream) {
+			try {
+				if (objectInputStream != null) {
+					objectInputStream.close();
+				}
+				if (objectOutputStream != null) {
+					objectOutputStream.close();
+				}
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 
@@ -251,13 +180,9 @@ public class Server {
 			api.hasReadMessage(premierMessage, dto.getUtilisateur());
 		}
 
-		public boolean demandeConnexion(DemandeDeConnexionDto dto) throws NoSuchAlgorithmException {
-			String hashedPassword = new String(
-					MessageDigest.getInstance("md5").digest(dto.getPassword().getBytes(StandardCharsets.UTF_8)),
-					StandardCharsets.UTF_8);
+		public boolean demandeConnexion(DemandeDeConnexionDto dto) {
 			Utilisateur utilisateurTest = api.getUtilisateur(dto.getLogin());
-			System.out.println(utilisateurTest.getPassword() + "\n" + dto.getPassword());
-			return utilisateurTest.getPassword().equals(hashedPassword)
+			return utilisateurTest.getPassword().equals(dto.getPassword())
 					&& utilisateurTest.getIdentifiant().equals(dto.getLogin());
 		}
 
@@ -270,5 +195,104 @@ public class Server {
 			}
 			api.hasReadMessage(newMessage, dto.getEnvoyeur());
 		}
+
+		public Groupe creerGroupe(CreerGroupeDto dto) {
+			Groupe groupe = new Groupe(dto.getNom());
+			api.createGroupe(groupe);
+			return groupe;
+		}
+
+		public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
+			boolean userInGroupe = false;
+			for (Utilisateur utilisateurInGroupe : groupe.getUtilisateurs()) {
+				if (utilisateurInGroupe.equals(user)) {
+					userInGroupe = true;
+				}
+			}
+			return userInGroupe;
+		}
+
+		public void addUserToGroupe(Utilisateur user, Groupe groupe) {
+			if (!testIfUserInGroupe(user, groupe)) {
+				groupe.addUtilisateurs(user);
+				api.setUtilisateur(user);
+			}
+		}
+
+		public Utilisateur addAgent(String nom, String prenom, String id, String notHashedPassword, Groupe... groupes) {
+			boolean ajoute = false;
+			Utilisateur newUser = new Agents(nom, prenom, id, notHashedPassword, groupes);
+			for (Groupe groupeLink : groupes) {
+				for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
+					if (utilisateurLink.equals(newUser)) {
+						ajoute = true;
+					}
+				}
+				if (!ajoute) {
+					groupeLink.addUtilisateurs(newUser);
+				}
+				ajoute = false;
+			}
+			api.setUtilisateur(newUser);
+			return newUser;
+		}
+
+		public Utilisateur addUtilisateurCampus(String nom, String prenom, String id, String notHashedPassword,
+				Groupe... groupes) {
+			boolean ajoute = false;
+			Utilisateur newUser = new UtilisateurCampus(nom, prenom, id, notHashedPassword, groupes);
+			for (Groupe groupeLink : groupes) {
+				for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
+					if (utilisateurLink.equals(newUser)) {
+						ajoute = true;
+					}
+				}
+				if (!ajoute) {
+					groupeLink.addUtilisateurs(newUser);
+				}
+				ajoute = false;
+			}
+			api.setUtilisateur(newUser);
+			return newUser;
+		}
+
+		public void lireMessageFil(Fil fil, Utilisateur lecteur) {
+			if (testIfUserInGroupe(lecteur, fil.getGroupe()) || fil.getCreateur().equals(lecteur)) {
+				for (Message messageFil : fil.getMessages()) {
+					if (getMessageStatus(messageFil) != Etat.LU) {
+						api.hasReadMessage(messageFil, lecteur);
+					}
+				}
+			}
+		}
+
+		public Etat getMessageStatus(Message message) {
+			return api.getMessageState(message);
+		}
+
+		public void modifierNomUser(Utilisateur user, String newNom) {
+			user.setNom(newNom);
+			api.setUtilisateur(user);
+		}
+
+		public void modifierPrenomUser(Utilisateur user, String newPrenom) {
+			user.setPrenom(newPrenom);
+			api.setUtilisateur(user);
+		}
+
+		public void supprimerUtilisateur(Utilisateur user) {
+			api.removeUtilisateur(user);
+			Iterator<Groupe> listIterator = user.getGroupes().iterator();
+			for (; listIterator.hasNext();) {
+				Groupe groupeDel = listIterator.next();
+				groupeDel.removeUtilisateurs(user);
+			}
+		}
+
+		public void supprimerGroupe(Groupe groupe) {
+			api.removeGroupe(groupe);
+			groupe.removeUtilisateurs(groupe.getUtilisateurs());
+		}
+
 	}
 }

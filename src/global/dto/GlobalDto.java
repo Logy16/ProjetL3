@@ -8,7 +8,8 @@ public class GlobalDto implements Serializable {
 	public TypeOperation operation;
 
 	public enum TypeOperation {
-		CREATION_FIL, DEMANDE_CONNEXION, SEND_MESSAGE, CONNEXION_REUSSIE, CONNEXION_ECHOUEE;
+		CREATION_FIL, DEMANDE_CONNEXION, SEND_MESSAGE, CONNEXION_REUSSIE, CONNEXION_ECHOUEE, CREER_GROUPE, ADD_USER,
+		ETABLISSEMENT_CONNEXION;
 	}
 
 	public GlobalDto(TypeOperation type) {
