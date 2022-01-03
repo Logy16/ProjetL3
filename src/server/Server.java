@@ -24,6 +24,7 @@ import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
 import global.dto.DemandeDeConnexionDto;
+import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
 import global.dto.LireFilDto;
@@ -116,7 +117,8 @@ public class Server {
 						break;
 					case SEND_MESSAGE:
 						SendMessageDto dtoSM = (SendMessageDto) globalDto;
-						sendMessage(dtoSM);
+						Message newMessage = sendMessage(dtoSM);
+						objectOutputStream.writeObject(newMessage);
 						break;
 					case CREER_GROUPE:
 						CreerGroupeDto dtoCG = (CreerGroupeDto) globalDto;
@@ -142,6 +144,11 @@ public class Server {
 					case LIRE_FIL:
 						LireFilDto dtoLF = (LireFilDto) globalDto;
 						lireMessageFil(dtoLF.getFil(), dtoLF.getUser());
+						break;
+					case GET_MESSAGE_STATE:
+						GetMessageStateDto dtoGMS = (GetMessageStateDto) globalDto;
+						Etat etatMessage = getMessageStatus(dtoGMS.getMessage());
+						objectOutputStream.writeObject(etatMessage);
 						break;
 					default:
 						break;
@@ -198,7 +205,7 @@ public class Server {
 					&& utilisateurTest.getIdentifiant().equals(dto.getLogin());
 		}
 
-		public void sendMessage(SendMessageDto dto) {
+		public Message sendMessage(SendMessageDto dto) {
 			Message newMessage = new Message(dto.getMessage(), new Date(), dto.getEnvoyeur(), dto.getFil());
 			dto.getFil().addMessage(newMessage);
 			api.sendMessage(newMessage);
@@ -206,6 +213,7 @@ public class Server {
 				api.hasSentMessage(newMessage, utilisateurFil);
 			}
 			api.hasReadMessage(newMessage, dto.getEnvoyeur());
+			return newMessage;
 		}
 
 		public Groupe creerGroupe(CreerGroupeDto dto) {

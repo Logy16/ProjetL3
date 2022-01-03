@@ -5,8 +5,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import global.Etat;
 import global.Fil;
 import global.Groupe;
+import global.Message;
 import global.Utilisateur;
 import global.dto.AddUserDto;
 import global.dto.AddUserDto.TypeUser;
@@ -14,6 +16,7 @@ import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
 import global.dto.DemandeDeConnexionDto;
+import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
 import global.dto.LireFilDto;
@@ -52,11 +55,16 @@ public class Client {
 			// Groupe tpa41 = new Groupe("TPA41");
 			Utilisateur newUser = client.addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo",
 					newGroupe);
+			Utilisateur newUser2 = client.addUtilisateurCampus("DI SCALA", "Jules", "Liouss", "testmdpjules",
+					newGroupe);
 			// UtilisateurCampus nemo = new Agents("BOUILLON", "Nemo", "Pastorale",
 			// "testmdpnemo", tpa41);
 			if (client.demandeConnexion("Pastorale", "testmdpnemo")) {
 				Fil newFil = client.demandeCreationFil("Nouveau fil", newUser, newGroupe, "Ceci est un nouveau fil");
-				client.sendMessage("MessageTest", newUser, newFil);
+				Message newMessage = client.sendMessage("MessageTest", newUser, newFil);
+				System.out.println(client.getMessageStatus(newMessage));
+				client.lireMessagesFil(newFil, newUser2);
+				System.out.println(client.getMessageStatus(newMessage));
 			}
 			Groupe newGroupe2 = client.createGroupe("Projet");
 			client.addUserToGroupe(newUser, newGroupe2);
@@ -127,9 +135,11 @@ public class Client {
 		return (Fil) objectInputStream.readObject();
 	}
 
-	public void sendMessage(String message, Utilisateur envoyeur, Fil fil) throws IOException {
+	public Message sendMessage(String message, Utilisateur envoyeur, Fil fil)
+			throws IOException, ClassNotFoundException {
 		SendMessageDto sendMessage = new SendMessageDto(message, envoyeur, fil);
 		objectOutputStream.writeObject(sendMessage);
+		return (Message) objectInputStream.readObject();
 	}
 
 	public void addUserToGroupe(Utilisateur user, Groupe groupe) throws IOException {
@@ -140,5 +150,11 @@ public class Client {
 	public void lireMessagesFil(Fil fil, Utilisateur utilisateur) throws IOException {
 		LireFilDto lireFil = new LireFilDto(utilisateur, fil);
 		objectOutputStream.writeObject(lireFil);
+	}
+
+	public Etat getMessageStatus(Message m) throws IOException, ClassNotFoundException {
+		GetMessageStateDto messageStatus = new GetMessageStateDto(m);
+		objectOutputStream.writeObject(messageStatus);
+		return (Etat) objectInputStream.readObject();
 	}
 }
