@@ -1,6 +1,7 @@
 package global;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -62,6 +63,28 @@ public abstract class Utilisateur implements Serializable {
 
 	public String getPassword() {
 		return password;
+	}
+	
+	public String classToString() {
+		if(this instanceof Agents) {
+			return "Agents";
+		}
+		else
+			return "Utilisateur campus";
+	}
+	
+	public String listGroupToString() {
+		String chaine = "";
+		String separateur = ", ";
+		for(Iterator<Groupe> ite = this.groupes.iterator(); ite.hasNext();) {
+			Groupe grp = ite.next();
+			if(ite.hasNext()) {
+				chaine += grp.getNom() + separateur;
+			}else {
+				chaine += grp.getNom();
+			}
+		}
+		return chaine;
 	}
 
 	@Override
