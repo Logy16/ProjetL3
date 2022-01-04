@@ -223,13 +223,12 @@ public class Server {
 		}
 
 		public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
-			boolean userInGroupe = false;
 			for (Utilisateur utilisateurInGroupe : groupe.getUtilisateurs()) {
 				if (utilisateurInGroupe.equals(user)) {
-					userInGroupe = true;
+					return true;
 				}
 			}
-			return userInGroupe;
+			return false;
 		}
 
 		public void addUserToGroupe(Utilisateur user, Groupe groupe) {

@@ -83,7 +83,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			returned = createUtilisateurFromResultSet(rst);
 			stmt.close();
 		} catch (SQLException | UserNotFoundException e) {
-			e.printStackTrace();
+			return null;
 		}
 		return returned;
 	}
@@ -102,16 +102,16 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 				stmt.execute("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
 						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(g.getNom()) + "')");
 			}
+			Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
+			if (u != null) {
 
-			try {
-				Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
 				stmt.execute("UPDATE Utilisateurs SET id='" + toSQLString(utilisateur.getIdentifiant()) + "', prenom='"
 						+ toSQLString(utilisateur.getPrenom()) + "', nom='" + toSQLString(utilisateur.getNom())
 						+ "', password='" + toSQLString(utilisateur.getPassword()) + "', type='" + toSQLString(type)
 						+ "' WHERE id='" + toSQLString(utilisateur.getIdentifiant()) + "'");
 				stmt.close();
 				return true;
-			} catch (Exception e) {
+			} else {
 				stmt.execute("INSERT INTO Utilisateurs (id, prenom, nom, password, type) VALUES ('"
 						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(utilisateur.getPrenom())
 						+ "', '" + toSQLString(utilisateur.getNom()) + "', '" + toSQLString(utilisateur.getPassword())
