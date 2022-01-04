@@ -23,11 +23,14 @@ import global.dto.AddUserDto.TypeUser;
 import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
+import global.dto.DeleteGroupDto;
+import global.dto.DeleteUserDto;
 import global.dto.DemandeDeConnexionDto;
 import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
 import global.dto.LireFilDto;
+import global.dto.ModifyUserDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 
@@ -129,26 +132,40 @@ public class Server {
 						Utilisateur newUser;
 						AddUserDto dtoAU = (AddUserDto) globalDto;
 						if (dtoAU.getType() == TypeUser.AGENT) {
-							newUser = addAgent(dtoAU.getNom(), dtoAU.getPrenom(), dtoAU.getId(), dtoAU.getPassword(),
-									dtoAU.getGroupes());
+							newUser = addAgent(dtoAU);
 						} else {
-							newUser = addUtilisateurCampus(dtoAU.getNom(), dtoAU.getPrenom(), dtoAU.getId(),
-									dtoAU.getPassword(), dtoAU.getGroupes());
+							newUser = addUtilisateurCampus(dtoAU);
 						}
 						objectOutputStream.writeObject(newUser);
 						break;
 					case ADD_USER_TO_GROUPE:
 						AddUserToGroupeDto dtoAUTG = (AddUserToGroupeDto) globalDto;
-						addUserToGroupe(dtoAUTG.getUser(), dtoAUTG.getGroupe());
+						addUserToGroupe(dtoAUTG);
 						break;
 					case LIRE_FIL:
 						LireFilDto dtoLF = (LireFilDto) globalDto;
-						lireMessageFil(dtoLF.getFil(), dtoLF.getUser());
+						lireMessageFil(dtoLF);
 						break;
 					case GET_MESSAGE_STATE:
 						GetMessageStateDto dtoGMS = (GetMessageStateDto) globalDto;
-						Etat etatMessage = getMessageStatus(dtoGMS.getMessage());
+						Etat etatMessage = getMessageStatus(dtoGMS);
 						objectOutputStream.writeObject(etatMessage);
+						break;
+					case MODIFY_FIRSTNAME:
+						ModifyUserDto dtoMUF = (ModifyUserDto) globalDto;
+						modifierPrenomUser(dtoMUF);
+						break;
+					case MODIFY_LASTNAME:
+						ModifyUserDto dtoMUL = (ModifyUserDto) globalDto;
+						modifierNomUser(dtoMUL);
+						break;
+					case DELETE_GROUPE:
+						DeleteGroupDto dtoDG = (DeleteGroupDto) globalDto;
+						supprimerGroupe(dtoDG);
+						break;
+					case DELETE_USER:
+						DeleteUserDto dtoDU = (DeleteUserDto) globalDto;
+						supprimerUtilisateur(dtoDU);
 						break;
 					default:
 						break;
@@ -223,25 +240,21 @@ public class Server {
 		}
 
 		public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
-			for (Utilisateur utilisateurInGroupe : groupe.getUtilisateurs()) {
-				if (utilisateurInGroupe.equals(user)) {
-					return true;
-				}
-			}
-			return false;
+			return user.getGroupes().contains(groupe);
 		}
 
-		public void addUserToGroupe(Utilisateur user, Groupe groupe) {
-			if (!testIfUserInGroupe(user, groupe)) {
-				groupe.addUtilisateurs(user);
-				api.setUtilisateur(user);
+		public void addUserToGroupe(AddUserToGroupeDto dto) {
+			if (!testIfUserInGroupe(dto.getUser(), dto.getGroupe())) {
+				dto.getGroupe().addUtilisateurs(dto.getUser());
+				api.setUtilisateur(dto.getUser());
 			}
 		}
 
-		public Utilisateur addAgent(String nom, String prenom, String id, String notHashedPassword, Groupe... groupes) {
+		public Utilisateur addAgent(AddUserDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUser = new Agents(nom, prenom, id, notHashedPassword, groupes);
-			for (Groupe groupeLink : groupes) {
+			Utilisateur newUser = new Agents(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword(),
+					dto.getGroupes());
+			for (Groupe groupeLink : dto.getGroupes()) {
 				for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
 					if (utilisateurLink.equals(newUser)) {
 						ajoute = true;
@@ -256,11 +269,11 @@ public class Server {
 			return newUser;
 		}
 
-		public Utilisateur addUtilisateurCampus(String nom, String prenom, String id, String notHashedPassword,
-				Groupe... groupes) {
+		public Utilisateur addUtilisateurCampus(AddUserDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUser = new UtilisateurCampus(nom, prenom, id, notHashedPassword, groupes);
-			for (Groupe groupeLink : groupes) {
+			Utilisateur newUser = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword(),
+					dto.getGroupes());
+			for (Groupe groupeLink : dto.getGroupes()) {
 				for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
 					if (utilisateurLink.equals(newUser)) {
 						ajoute = true;
@@ -275,42 +288,41 @@ public class Server {
 			return newUser;
 		}
 
-		public void lireMessageFil(Fil fil, Utilisateur lecteur) {
-			if (testIfUserInGroupe(lecteur, fil.getGroupe()) || fil.getCreateur().equals(lecteur)) {
-				for (Message messageFil : fil.getMessages()) {
-					if (getMessageStatus(messageFil) != Etat.LU) {
-						api.hasReadMessage(messageFil, lecteur);
-					}
+		public void lireMessageFil(LireFilDto lireFil) {
+			if (testIfUserInGroupe(lireFil.getUser(), lireFil.getFil().getGroupe())
+					|| lireFil.getFil().getCreateur().equals(lireFil.getUser())) {
+				for (Message messageFil : lireFil.getFil().getMessages()) {
+					api.hasReadMessage(messageFil, lireFil.getUser());
 				}
 			}
 		}
 
-		public Etat getMessageStatus(Message message) {
-			return api.getMessageState(message);
+		public Etat getMessageStatus(GetMessageStateDto dto) {
+			return api.getMessageState(dto.getMessage());
 		}
 
-		public void modifierNomUser(Utilisateur user, String newNom) {
-			user.setNom(newNom);
-			api.setUtilisateur(user);
+		public void modifierNomUser(ModifyUserDto dto) {
+			dto.getUser().setNom(dto.getNewName());
+			api.setUtilisateur(dto.getUser());
 		}
 
-		public void modifierPrenomUser(Utilisateur user, String newPrenom) {
-			user.setPrenom(newPrenom);
-			api.setUtilisateur(user);
+		public void modifierPrenomUser(ModifyUserDto dto) {
+			dto.getUser().setPrenom(dto.getNewName());
+			api.setUtilisateur(dto.getUser());
 		}
 
-		public void supprimerUtilisateur(Utilisateur user) {
-			api.removeUtilisateur(user);
-			Iterator<Groupe> listIterator = user.getGroupes().iterator();
+		public void supprimerUtilisateur(DeleteUserDto dto) {
+			api.removeUtilisateur(dto.getUser());
+			Iterator<Groupe> listIterator = dto.getUser().getGroupes().iterator();
 			for (; listIterator.hasNext();) {
 				Groupe groupeDel = listIterator.next();
-				groupeDel.removeUtilisateurs(user);
+				groupeDel.removeUtilisateurs(dto.getUser());
 			}
 		}
 
-		public void supprimerGroupe(Groupe groupe) {
-			api.removeGroupe(groupe);
-			groupe.removeUtilisateurs(groupe.getUtilisateurs());
+		public void supprimerGroupe(DeleteGroupDto dto) {
+			api.removeGroupe(dto.getGroupe());
+			dto.getGroupe().removeUtilisateurs(dto.getGroupe().getUtilisateurs());
 		}
 
 	}

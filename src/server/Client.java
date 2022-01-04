@@ -15,11 +15,14 @@ import global.dto.AddUserDto.TypeUser;
 import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
+import global.dto.DeleteGroupDto;
+import global.dto.DeleteUserDto;
 import global.dto.DemandeDeConnexionDto;
 import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
 import global.dto.LireFilDto;
+import global.dto.ModifyUserDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 
@@ -68,6 +71,12 @@ public class Client {
 			}
 			Groupe newGroupe2 = client.createGroupe("Projet");
 			client.addUserToGroupe(newUser, newGroupe2);
+			client.modifierPrenomUser(newUser, "Nemo2");
+			client.modifierNomUser(newUser2, "DI SCALA2");
+			System.out.println("modification de Nemo en " + newUser.getPrenom());
+			System.out.println("modification de DI SCALA en " + newUser2.getNom());
+			client.supprimerGroupe(newGroupe2);
+			client.supprimerUtilisateur(newUser2);
 			while (true)
 				;
 		} catch (IOException | ClassNotFoundException e) {
@@ -152,9 +161,31 @@ public class Client {
 		objectOutputStream.writeObject(lireFil);
 	}
 
+	public void modifierNomUser(Utilisateur user, String newName) throws IOException {
+		user.setNom(newName);
+		ModifyUserDto modifyName = new ModifyUserDto(newName, user, TypeOperation.MODIFY_LASTNAME);
+		objectOutputStream.writeObject(modifyName);
+	}
+
+	public void modifierPrenomUser(Utilisateur user, String newName) throws IOException {
+		user.setPrenom(newName);
+		ModifyUserDto modifyName = new ModifyUserDto(newName, user, TypeOperation.MODIFY_FIRSTNAME);
+		objectOutputStream.writeObject(modifyName);
+	}
+
 	public Etat getMessageStatus(Message m) throws IOException, ClassNotFoundException {
 		GetMessageStateDto messageStatus = new GetMessageStateDto(m);
 		objectOutputStream.writeObject(messageStatus);
 		return (Etat) objectInputStream.readObject();
+	}
+
+	public void supprimerUtilisateur(Utilisateur u) throws IOException {
+		DeleteUserDto deleteUser = new DeleteUserDto(u);
+		objectOutputStream.writeObject(deleteUser);
+	}
+
+	public void supprimerGroupe(Groupe g) throws IOException {
+		DeleteGroupDto deleteGroup = new DeleteGroupDto(g);
+		objectOutputStream.writeObject(deleteGroup);
 	}
 }
