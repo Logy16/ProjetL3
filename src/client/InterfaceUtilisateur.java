@@ -8,7 +8,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -20,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
@@ -29,7 +33,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import global.Agents;
 import global.Fil;
 import global.Groupe;
+import global.Message;
 import global.Utilisateur;
+import global.UtilisateurCampus;
 
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
@@ -55,8 +61,9 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		
 		/*
 		 *************** BD ***************** 
+		 * Récupérer les groupes et les fils de discussion
 		*/
-		//Récupérer les groupes et les fils de discussion
+		
 		List<Groupe> listgrp = new ArrayList<>();
 		List<Fil> listeFil = new ArrayList<>();
 			//Partie de test à supprimer
@@ -69,8 +76,14 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			listgrp.add(groupeTest3);
 			listgrp.add(groupeTest4);
 			Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
-			listeFil.add(new Fil("Sujet jeux vidéo", groupeTest1, test));
-			listeFil.add(new Fil("Sujet 1", groupeTest1, test));
+			Fil filtest = new Fil("Sujet écriture", groupeTest2, test);
+			Fil filtest2 = new Fil("Sujet 1", groupeTest1, test);
+			filtest.addMessage(new Message("Test de message 1", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest2), filtest));
+			filtest.addMessage(new Message("Test de message 2", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest2), filtest));
+			filtest2.addMessage(new Message("Test de message 11", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest1), filtest2));
+			filtest2.addMessage(new Message("Test de message 12", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest1), filtest2));
+			listeFil.add(filtest);
+			listeFil.add(filtest2);
 			listeFil.add(new Fil("Sujet 2", groupeTest2, test));
 			listeFil.add(new Fil("Sujet jeux vidéo", groupeTest3, test));
 			listeFil.add(new Fil("Sujet cours POOMO", groupeTest4, test));
@@ -101,8 +114,20 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 						 listeTickets.getLastSelectedPathComponent();
 		        if(node.getChildCount() == 0) {
 		        	Object nodeInfo = node.getUserObject();
+		        	Fil selectedFil = null;
+		        	
+		        	affichageMess.removeAll();
 			        nomTicket.setText(nodeInfo.toString());		
-			        txtSaisie.setText("Envoyer un message dans : <<" + nodeInfo.toString() + ">>");
+			        txtSaisie.setText("Envoyer un message dans : <<" + nodeInfo + ">>");
+			        for(Fil sameFil : listeFil) {
+			        	if(sameFil.getSujet().equals(nodeInfo)) {
+			        		 selectedFil = sameFil;
+			        	}
+			        }
+			        for(Iterator<Message> ite = selectedFil.getMessages().iterator(); ite.hasNext();) {
+			        	Message currentMess = ite.next();
+			        	affichageMess.add(new JLabel("<html>" +currentMess.getTexte() + "<br/>" + currentMess.getExpediteur() + "<br/><br/></html>"));
+			        }
 		        }  		
 			}
 		});
@@ -130,11 +155,11 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 		droite.setLayout(new BorderLayout());
 		droite.add(subjectTicket, BorderLayout.NORTH);
-		droite.add(affichageMess, BorderLayout.CENTER);
+		droite.add(new JScrollPane(affichageMess), BorderLayout.CENTER);
 		droite.add(saisieTxt, BorderLayout.SOUTH);
 
 		subjectTicket.setLayout(new FlowLayout());
-		affichageMess.setLayout(new GridLayout());
+		affichageMess.setLayout(new GridLayout(100,1));
 		saisieTxt.setLayout(new BorderLayout());
 
 		subjectTicket.add(nomTicket);
@@ -166,7 +191,14 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == buttonEnvoyer) {
-			affichageMess.add(new JButton(zoneSaisie.getText()));
+			/*
+			 *************** BD ***************** 
+			 * Ajouter en base le message
+			*/
+			Message currentMess = new Message(zoneSaisie.getText(), new Date(LocalDateTime.now().toString())
+					, null, null);
+			SwingUtilities.updateComponentTreeUI(this);
+			zoneSaisie.setText("");
 		}
 		if(e.getSource() == buttnewSubject) {
 			
