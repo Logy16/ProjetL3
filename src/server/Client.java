@@ -10,8 +10,8 @@ import global.Fil;
 import global.Groupe;
 import global.Message;
 import global.Utilisateur;
+import global.dto.AddAgentDto;
 import global.dto.AddUserDto;
-import global.dto.AddUserDto.TypeUser;
 import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
@@ -38,7 +38,7 @@ public class Client {
 			SimpleDto etablissementConnexion = new SimpleDto(TypeOperation.ETABLISSEMENT_CONNEXION);
 			objectOutputStream.writeObject(etablissementConnexion);
 			this.objectInputStream = new ObjectInputStream(s.getInputStream());
-			SimpleDto returnEtablissementConnexion = (SimpleDto) objectInputStream.readObject();
+			objectInputStream.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 			closeEverything(socket, objectInputStream, objectOutputStream);
@@ -47,36 +47,36 @@ public class Client {
 
 	public static void main(String[] args) throws IOException {
 		System.out.println("Creating connection ...");
-		Socket socket = new Socket("localhost", 7777);
-		Client client = new Client(socket);
-		System.out.println("Connection info");
-
-		// TESTS
-
 		try {
-			Groupe newGroupe = client.createGroupe("TPA41");
-			// Groupe tpa41 = new Groupe("TPA41");
-			Utilisateur newUser = client.addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo",
-					newGroupe);
-			Utilisateur newUser2 = client.addUtilisateurCampus("DI SCALA", "Jules", "Liouss", "testmdpjules",
-					newGroupe);
-			// UtilisateurCampus nemo = new Agents("BOUILLON", "Nemo", "Pastorale",
-			// "testmdpnemo", tpa41);
-			if (client.demandeConnexion("Pastorale", "testmdpnemo")) {
-				Fil newFil = client.demandeCreationFil("Nouveau fil", newUser, newGroupe, "Ceci est un nouveau fil");
-				Message newMessage = client.sendMessage("MessageTest", newUser, newFil);
-				System.out.println(client.getMessageStatus(newMessage));
-				client.lireMessagesFil(newFil, newUser2);
-				System.out.println(client.getMessageStatus(newMessage));
+			Socket socket = new Socket("localhost", 7777);
+			Client client = new Client(socket);
+			client.tests();
+			System.out.println("Connection info");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void tests() {
+		try {
+			Groupe newGroupe = createGroupe("TPA41");
+			Utilisateur newUser2 = addUtilisateurCampus("DI SCALA", "Jules", "Liouss", "testmdpjules", newGroupe);
+			Utilisateur newUser = addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo", newGroupe);
+			if (demandeConnexion("Pastorale", "testmdpnemo")) {
+				Fil newFil = demandeCreationFil("Nouveau fil", newUser, newGroupe, "Ceci est un nouveau fil");
+				Message newMessage = sendMessage("MessageTest", newUser, newFil);
+				System.out.println(getMessageStatus(newMessage));
+				lireMessagesFil(newFil, newUser2);
+				System.out.println(getMessageStatus(newMessage));
 			}
-			Groupe newGroupe2 = client.createGroupe("Projet");
-			client.addUserToGroupe(newUser, newGroupe2);
-			client.modifierPrenomUser(newUser, "Nemo2");
-			client.modifierNomUser(newUser2, "DI SCALA2");
-			System.out.println("modification de Nemo en " + newUser.getPrenom());
-			System.out.println("modification de DI SCALA en " + newUser2.getNom());
-			client.supprimerGroupe(newGroupe2);
-			client.supprimerUtilisateur(newUser2);
+			Groupe newGroupe2 = createGroupe("Projet");
+			addUserToGroupe(newUser, newGroupe2);
+			Utilisateur modified1 = modifierNomUser(newUser2, "DI SCALA2");
+			System.out.println("modification de DI SCALA en " + modified1.getNom());
+			Utilisateur modified2 = modifierPrenomUser(modified1, "cursedJules");
+			System.out.println("modification de Jules en " + modified2.getPrenom());
+//			client.supprimerGroupe(newGroupe2);
+//			client.supprimerUtilisateur(newUser2);
 			while (true)
 				;
 		} catch (IOException | ClassNotFoundException e) {
@@ -92,8 +92,8 @@ public class Client {
 			if (objectOutputStream != null) {
 				objectOutputStream.close();
 			}
-			if (socket != null) {
-				socket.close();
+			if (s != null) {
+				s.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -108,14 +108,14 @@ public class Client {
 
 	public Utilisateur addAgent(String nom, String prenom, String id, String password, Groupe... groupes)
 			throws IOException, ClassNotFoundException {
-		AddUserDto addUser = new AddUserDto(nom, prenom, id, password, TypeUser.AGENT, groupes);
+		AddAgentDto addUser = new AddAgentDto(nom, prenom, id, password, groupes);
 		objectOutputStream.writeObject(addUser);
 		return (Utilisateur) objectInputStream.readObject();
 	}
 
 	public Utilisateur addUtilisateurCampus(String nom, String prenom, String id, String password, Groupe... groupes)
 			throws IOException, ClassNotFoundException {
-		AddUserDto addUser = new AddUserDto(nom, prenom, id, password, TypeUser.UTILISATEUR_CAMPUS, groupes);
+		AddUserDto addUser = new AddUserDto(nom, prenom, id, password, groupes);
 		objectOutputStream.writeObject(addUser);
 		return (Utilisateur) objectInputStream.readObject();
 	}
@@ -161,16 +161,16 @@ public class Client {
 		objectOutputStream.writeObject(lireFil);
 	}
 
-	public void modifierNomUser(Utilisateur user, String newName) throws IOException {
-		user.setNom(newName);
+	public Utilisateur modifierNomUser(Utilisateur user, String newName) throws IOException, ClassNotFoundException {
 		ModifyUserDto modifyName = new ModifyUserDto(newName, user, TypeOperation.MODIFY_LASTNAME);
 		objectOutputStream.writeObject(modifyName);
+		return (Utilisateur) objectInputStream.readObject();
 	}
 
-	public void modifierPrenomUser(Utilisateur user, String newName) throws IOException {
-		user.setPrenom(newName);
+	public Utilisateur modifierPrenomUser(Utilisateur user, String newName) throws IOException, ClassNotFoundException {
 		ModifyUserDto modifyName = new ModifyUserDto(newName, user, TypeOperation.MODIFY_FIRSTNAME);
 		objectOutputStream.writeObject(modifyName);
+		return (Utilisateur) objectInputStream.readObject();
 	}
 
 	public Etat getMessageStatus(Message m) throws IOException, ClassNotFoundException {

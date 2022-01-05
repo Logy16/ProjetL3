@@ -449,14 +449,13 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 	public void removeUtilisateur(Utilisateur utilisateur) {
 		try {
 			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM Utilisateurs WHERE m_u_id = '" + toSQLString(utilisateur.getIdentifiant()) + "'");
+			stmt.execute("DELETE FROM Utilisateurs WHERE id = '" + toSQLString(utilisateur.getIdentifiant()) + "'");
 
 			stmt.close();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override

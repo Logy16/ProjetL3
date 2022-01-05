@@ -33,6 +33,10 @@ public class Groupe implements Comparable<Groupe>, Serializable {
 		return returned;
 	}
 
+	public Set<Utilisateur> getUtilisateursSet() {
+		return utilisateurs;
+	}
+
 	public int getNbUtilisateurs() {
 		return utilisateurs.size();
 	}
