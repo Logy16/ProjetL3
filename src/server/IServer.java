@@ -8,45 +8,58 @@ import global.Fil;
 import global.Groupe;
 import global.Message;
 import global.Utilisateur;
+import global.dto.AddAgentDto;
+import global.dto.AddUserDto;
+import global.dto.AddUserToGroupeDto;
+import global.dto.CreationFilDto;
+import global.dto.CreerGroupeDto;
+import global.dto.DeleteGroupDto;
+import global.dto.DeleteUserDto;
+import global.dto.DemandeDeConnexionDto;
+import global.dto.GetMessageStateDto;
+import global.dto.LireFilDto;
+import global.dto.ModifyUserDto;
+import global.dto.SendMessageDto;
 
 public interface IServer {
 
 	/**
 	 * Teste la demande de connexion d'un utilisateur au serveur
 	 * 
-	 * @param login    : login de l'utilisateur a tester
-	 * @param password : mot de passe de l'utilisateur a tester
-	 * @return true si le mot de passe correspond bien à celui de l'utilisateur,
-	 *         false sinon
+	 * @param dto : Data transfer object contenant le login et le password de
+	 *            l'utilisateur
+	 * @return true si le mot de passe et le login correspond bien à celui de
+	 *         l'utilisateur, false sinon
 	 * @author Nemo
 	 **/
-	public boolean demandeConnexion(String login, String password)
+	public boolean demandeConnexion(DemandeDeConnexionDto dto)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException;
 
 	/**
 	 * Permet de créer un nouveau fil et de l'ajouter à la base de donnée
 	 * 
-	 * @param titre    : titre à attribuer au fil
-	 * @param groupe   : groupe auquel s'adresse le fil
-	 * @param createur : utilisateur a l'origine du fil
-	 * @param message  : premier message envoyé par le créateur sur le fil
+	 * @param dto : Data transfer object contenant toutes les informations
+	 *            nécessaires à la creation du fil: groupe auquel s'adresse le fil,
+	 *            nom du fil, créateur du fil, ainsi que le premier message du fil
+	 * @return le nouveau fil créé
 	 * @author Nemo
 	 **/
-	public void creerFil(String titre, Groupe groupe, Utilisateur createur, String message);
+	public Fil demandeCreationFil(CreationFilDto dto);
 
 	/**
 	 * Permet de créer un nouveau groupe et de l'ajouter à la base de donnée
 	 * 
-	 * @param nom : nom à attribuer au groupe
+	 * @param dto : Data transfer object contenant le nom du nouveau groupe
+	 * @return le nouveau groupe créé
 	 * @author Nemo
 	 **/
-	public void creerGroupe(String nom);
+	public Groupe creerGroupe(CreerGroupeDto dto);
 
 	/**
 	 * Permet de tester si un utilisateur appartient a un groupe
 	 * 
-	 * @param user   : utilisateur a tester
-	 * @param groupe : groupe a tester
+	 * @param user   : utilisateur à tester
+	 * @param groupe : groupe à tester
 	 * @return true si l'utilisateur est dans le groupe, false sinon
 	 * @author Nemo
 	 **/
@@ -56,101 +69,107 @@ public interface IServer {
 	 * Permet d'ajouter un utilisateur dans un groupe s'il n'y est pas déjà et de
 	 * mettre à jour la base de donnée
 	 * 
-	 * @param user   : utilisateur a ajouter dans le groupe
-	 * @param groupe : groupe dans lequel l'utilisateur sera rajouté
+	 * @param dto : Data transfer object contenant l'utilisateur et le groupe dans
+	 *            lequel l'utilisateur doit être ajouté
 	 * @author Nemo
 	 **/
-	public void addUserToGroupe(Utilisateur user, Groupe groupe);
+	public void addUserToGroupe(AddUserToGroupeDto dto);
 
 	/**
 	 * Permet de créer un nouvel agent et de l'ajouter à la base de donnée
 	 * 
-	 * @param nom               : nom à attribuer à l'agent
-	 * @param prenom            : prenom à attribuer à l'agent
-	 * @param id                : id de l'agent
-	 * @param notHashedPassword : password brut de l'agent
-	 * @param groupes           : groupe(s) auquel(s) appartient l'agent
+	 * @param dto : Data transfer object contenant toutes les informations
+	 *            nécessaires à la creation du nouvel agent: nom de l'agent, prénom
+	 *            de l'agent, identifiant de l'agent, mot de passe de l'agent ainsi
+	 *            que l'ensemble des groupes auquels il appartient
+	 * @return le nouvel utilisateur créé
 	 * @author Nemo
 	 **/
-	public void addAgent(String nom, String prenom, String id, String notHashedPassword, Groupe... groupes);
+	public Utilisateur addAgent(AddAgentDto dto);
 
 	/**
 	 * Permet de créer un nouvel utilisateur du campus et de l'ajouter à la base de
 	 * donnée
 	 * 
-	 * @param nom               : nom à attribuer à l'utilisateur
-	 * @param prenom            : prenom à attribuer à l'utilisateur
-	 * @param id                : id de l'utilisateur
-	 * @param notHashedPassword : password brut de l'utilisateur
-	 * @param groupes           : groupe(s) auquel(s) appartient l'utilisateur
+	 * @param dto : Data transfer object contenant toutes les informations
+	 *            nécessaires à la creation du nouvel utilisateur du campus: nom de
+	 *            l'utilisateur, prénom de l'utilisateur, identifiant de
+	 *            l'utilisateur, mot de passe de l'utilisateur ainsi que l'ensemble
+	 *            des groupes auquels il appartient
+	 * @return le nouvel utilisateur créé
 	 * @author Nemo
 	 **/
-	public void addUtilisateurCampus(String nom, String prenom, String id, String notHashedPassword, Groupe... groupes);
+	public Utilisateur addUtilisateurCampus(AddUserDto dto);
 
 	/**
 	 * Permet d'envoyer un message dans un fil de discussion
 	 * 
-	 * @param message  : message à envoyer sur le fil
-	 * @param envoyeur : utilisateur à la source du message
-	 * @param fil      : fil de discussion sur lequel doit être envoyé le message
+	 * @param dto : Data transfer object contant toutes les informations utiles à la
+	 *            création du nouveau message: le message, l'utilisateur à l'origine
+	 *            du message ainsi que le fil sur lequel le message doit être envoyé
+	 * @return le message envoyé sur le fil
 	 * @author Nemo
 	 **/
-	public void envoyerMessage(String message, Utilisateur envoyeur, Fil fil);
+	public Message sendMessage(SendMessageDto dto);
 
 	/**
-	 * Permet de lire tout les messages non lus dans un fil pour un utilisateur, a
+	 * Permet de lire tout les messages non lus dans un fil pour un utilisateur, à
 	 * utiliser lorsque un utilisateur ouvre un fil
 	 * 
-	 * @param fil     : fil dans lequel les messages sont lus
-	 * @param lecteur : utilisateur ouvrant le fil
+	 * @param dto : Data transfer object contenant l'utilisateur lecteur, ainsi que
+	 *            le fil contenant tout les messages à lire
 	 * @author Nemo
 	 **/
-	public void lireMessageFil(Fil fil, Utilisateur lecteur);
+	public void lireMessageFil(LireFilDto lireFil);
 
 	/**
-	 * Permet d'obtenir l'Etat du message passé en paramètre
+	 * Permet d'obtenir l'état du message passé en paramètre
 	 * 
-	 * @param message : message dont on souhaite obtenir l'etat
-	 * @return l'Etat du message passé en paramètre
+	 * @param dto : Data transfer object contenant le message dont on souhaite
+	 *            obtenir l'état
+	 * @return l'état du message passé en paramètre
 	 * @author Nemo
 	 **/
-	public Etat getMessageStatus(Message message);
+	public Etat getMessageStatus(GetMessageStateDto dto);
 
 	/**
 	 * Permet de modifier le nom d'un utilisateur et de le mettre à jour dans la
 	 * base de donnée
 	 * 
-	 * @param user   : utilisateur dont il faut modifier le nom
-	 * @param newNom : nouveau nom à attribuer à l'utilisateur
+	 * @param dto : Data transfer object contenant l'utilisateur dont on souhaite
+	 *            modifier le nom ainsi que le nouveau nom de celui ci
+	 * @return l'utilisateur dont on a modifié le nom
 	 * @author Nemo
 	 **/
-	public void modifierNomUser(Utilisateur user, String newNom);
+	public Utilisateur modifierNomUser(ModifyUserDto dto);
 
 	/**
 	 * Permet de modifier le prénom d'un utilisateur et de le mettre à jour dans la
 	 * base de donnée
 	 * 
-	 * @param user      : utilisateur dont il faut modifier le prénom
-	 * @param newPrenom : nouveau prénom à attribuer à l'utilisateur
+	 * @param dto : Data transfer object contenant l'utilisateur dont on souhaite
+	 *            modifier le nom ainsi que le nouveau prenom de celui ci
+	 * @return l'utilisateur dont on a modifié le prenom
 	 * @author Nemo
 	 **/
-	public void modifierPrenomUser(Utilisateur user, String newPrenom);
+	public Utilisateur modifierPrenomUser(ModifyUserDto dto);
 
 	/**
 	 * Permet de supprimer un utilisateur de la base de donnée et met à jour les
 	 * liens avec cet utilisateur
 	 * 
-	 * @param user : utilisateur à supprimer
+	 * @param dto : Data transfer object contenant l'utilisateur destiné à être
+	 *            supprimé
 	 * @author Nemo
 	 **/
-	public void supprimerUtilisateur(Utilisateur user);
+	public void supprimerUtilisateur(DeleteUserDto dto);
 
 	/**
 	 * Permet de supprimer un groupe de la base de donnée et met à jour les liens
 	 * avec ce groupe
 	 * 
-	 * @param groupe : groupe à supprimer
+	 * @param dto : Data transfer object contenant le groupe destiné à être supprimé
 	 * @author Nemo
 	 **/
-	public void supprimerGroupe(Groupe groupe);
+	public void supprimerGroupe(DeleteGroupDto dto);
 }

@@ -4,17 +4,17 @@ import java.io.Serializable;
 
 import global.Groupe;
 
-public class AddUserDto extends GlobalDto implements Serializable {
+public class AddAgentDto extends GlobalDto implements Serializable {
 
-	private static final long serialVersionUID = 6972981211107633905L;
+	private static final long serialVersionUID = 2577967842183812018L;
 	private String nom;
 	private String prenom;
 	private String id;
 	private String password;
 	private Groupe[] groupes;
 
-	public AddUserDto(String nom, String prenom, String identifiant, String password, Groupe... gs) {
-		super(TypeOperation.ADD_USER);
+	public AddAgentDto(String nom, String prenom, String identifiant, String password, Groupe... gs) {
+		super(TypeOperation.ADD_AGENT);
 		this.nom = nom;
 		this.prenom = prenom;
 		this.id = identifiant;

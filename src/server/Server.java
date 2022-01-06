@@ -18,8 +18,8 @@ import global.Groupe;
 import global.Message;
 import global.Utilisateur;
 import global.UtilisateurCampus;
+import global.dto.AddAgentDto;
 import global.dto.AddUserDto;
-import global.dto.AddUserDto.TypeUser;
 import global.dto.AddUserToGroupeDto;
 import global.dto.CreationFilDto;
 import global.dto.CreerGroupeDto;
@@ -52,8 +52,7 @@ public class Server {
 			e.printStackTrace();
 		}
 
-		// accepte les connexions de chaque client et crée un nouveau thread pour
-		// chacun
+		// accepte les connexions de chaque client et cree un nouveau thread pour chacun
 		while (true) {
 			try {
 				System.out.println("Waiting socket creation ...");
@@ -75,7 +74,7 @@ public class Server {
 // CLASSE INTERNE: 1 THREAD PAR CLIENT CONNECTE //
 //**********************************************//
 
-	private static class ServerThread extends Thread {
+	private static class ServerThread extends Thread implements IServer {
 		private Socket socket;
 		private APIServerSQL api;
 		private ObjectInputStream objectInputStream;
@@ -129,14 +128,14 @@ public class Server {
 						objectOutputStream.writeObject(newGroupe);
 						break;
 					case ADD_USER:
-						Utilisateur newUser;
 						AddUserDto dtoAU = (AddUserDto) globalDto;
-						if (dtoAU.getType() == TypeUser.AGENT) {
-							newUser = addAgent(dtoAU);
-						} else {
-							newUser = addUtilisateurCampus(dtoAU);
-						}
-						objectOutputStream.writeObject(newUser);
+						Utilisateur newUserCampus = addUtilisateurCampus(dtoAU);
+						objectOutputStream.writeObject(newUserCampus);
+						break;
+					case ADD_AGENT:
+						AddAgentDto dtoAA = (AddAgentDto) globalDto;
+						Utilisateur newAgent = addAgent(dtoAA);
+						objectOutputStream.writeObject(newAgent);
 						break;
 					case ADD_USER_TO_GROUPE:
 						AddUserToGroupeDto dtoAUTG = (AddUserToGroupeDto) globalDto;
@@ -153,11 +152,13 @@ public class Server {
 						break;
 					case MODIFY_FIRSTNAME:
 						ModifyUserDto dtoMUF = (ModifyUserDto) globalDto;
-						modifierPrenomUser(dtoMUF);
+						Utilisateur modifiedUserName = modifierPrenomUser(dtoMUF);
+						objectOutputStream.writeObject(modifiedUserName);
 						break;
 					case MODIFY_LASTNAME:
 						ModifyUserDto dtoMUL = (ModifyUserDto) globalDto;
-						modifierNomUser(dtoMUL);
+						Utilisateur modifiedUserLastName = modifierNomUser(dtoMUL);
+						objectOutputStream.writeObject(modifiedUserLastName);
 						break;
 					case DELETE_GROUPE:
 						DeleteGroupDto dtoDG = (DeleteGroupDto) globalDto;
@@ -195,6 +196,7 @@ public class Server {
 			}
 		}
 
+		@Override
 		public Fil demandeCreationFil(CreationFilDto dto) {
 			if (dto.getChaine() == null) {
 				throw new IllegalArgumentException("Chaine cannot be null");
@@ -216,12 +218,14 @@ public class Server {
 			return fil;
 		}
 
+		@Override
 		public boolean demandeConnexion(DemandeDeConnexionDto dto) {
 			Utilisateur utilisateurTest = api.getUtilisateur(dto.getLogin());
 			return utilisateurTest.getPassword().equals(dto.getPassword())
 					&& utilisateurTest.getIdentifiant().equals(dto.getLogin());
 		}
 
+		@Override
 		public Message sendMessage(SendMessageDto dto) {
 			Message newMessage = new Message(dto.getMessage(), new Date(), dto.getEnvoyeur(), dto.getFil());
 			dto.getFil().addMessage(newMessage);
@@ -233,16 +237,19 @@ public class Server {
 			return newMessage;
 		}
 
+		@Override
 		public Groupe creerGroupe(CreerGroupeDto dto) {
 			Groupe groupe = new Groupe(dto.getNom());
 			api.createGroupe(groupe);
 			return groupe;
 		}
 
+		@Override
 		public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
 			return user.getGroupes().contains(groupe);
 		}
 
+		@Override
 		public void addUserToGroupe(AddUserToGroupeDto dto) {
 			if (!testIfUserInGroupe(dto.getUser(), dto.getGroupe())) {
 				dto.getGroupe().addUtilisateurs(dto.getUser());
@@ -250,44 +257,43 @@ public class Server {
 			}
 		}
 
-		public Utilisateur addAgent(AddUserDto dto) {
+		@Override
+		public Utilisateur addAgent(AddAgentDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUser = new Agents(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword(),
+			Utilisateur newUserAgent = new Agents(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword(),
 					dto.getGroupes());
 			for (Groupe groupeLink : dto.getGroupes()) {
-				for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
-					if (utilisateurLink.equals(newUser)) {
-						ajoute = true;
-					}
+				if (groupeLink.getUtilisateursSet().contains(newUserAgent)) {
+					ajoute = true;
 				}
 				if (!ajoute) {
-					groupeLink.addUtilisateurs(newUser);
+					groupeLink.addUtilisateurs(newUserAgent);
 				}
 				ajoute = false;
 			}
-			api.setUtilisateur(newUser);
-			return newUser;
+			api.setUtilisateur(newUserAgent);
+			return newUserAgent;
 		}
 
+		@Override
 		public Utilisateur addUtilisateurCampus(AddUserDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUser = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword(),
-					dto.getGroupes());
+			Utilisateur newUserCampus = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(),
+					dto.getPassword(), dto.getGroupes());
 			for (Groupe groupeLink : dto.getGroupes()) {
-				for (Utilisateur utilisateurLink : groupeLink.getUtilisateurs()) {
-					if (utilisateurLink.equals(newUser)) {
-						ajoute = true;
-					}
+				if (groupeLink.getUtilisateursSet().contains(newUserCampus)) {
+					ajoute = true;
 				}
 				if (!ajoute) {
-					groupeLink.addUtilisateurs(newUser);
+					groupeLink.addUtilisateurs(newUserCampus);
 				}
 				ajoute = false;
 			}
-			api.setUtilisateur(newUser);
-			return newUser;
+			api.setUtilisateur(newUserCampus);
+			return newUserCampus;
 		}
 
+		@Override
 		public void lireMessageFil(LireFilDto lireFil) {
 			if (testIfUserInGroupe(lireFil.getUser(), lireFil.getFil().getGroupe())
 					|| lireFil.getFil().getCreateur().equals(lireFil.getUser())) {
@@ -297,20 +303,26 @@ public class Server {
 			}
 		}
 
+		@Override
 		public Etat getMessageStatus(GetMessageStateDto dto) {
 			return api.getMessageState(dto.getMessage());
 		}
 
-		public void modifierNomUser(ModifyUserDto dto) {
+		@Override
+		public Utilisateur modifierNomUser(ModifyUserDto dto) {
 			dto.getUser().setNom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
+			return api.getUtilisateur(dto.getUser().getIdentifiant());
 		}
 
-		public void modifierPrenomUser(ModifyUserDto dto) {
+		@Override
+		public Utilisateur modifierPrenomUser(ModifyUserDto dto) {
 			dto.getUser().setPrenom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
+			return api.getUtilisateur(dto.getUser().getIdentifiant());
 		}
 
+		@Override
 		public void supprimerUtilisateur(DeleteUserDto dto) {
 			api.removeUtilisateur(dto.getUser());
 			Iterator<Groupe> listIterator = dto.getUser().getGroupes().iterator();
@@ -320,6 +332,7 @@ public class Server {
 			}
 		}
 
+		@Override
 		public void supprimerGroupe(DeleteGroupDto dto) {
 			api.removeGroupe(dto.getGroupe());
 			dto.getGroupe().removeUtilisateurs(dto.getGroupe().getUtilisateurs());
