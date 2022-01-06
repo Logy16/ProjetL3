@@ -9,6 +9,7 @@ public class Message implements Comparable<Message>, Serializable {
 	private Date date;
 	private Utilisateur expediteur;
 	private Fil fil;
+	private Etat etat = Etat.EN_ATTENTE;
 
 	public Message(String texte, Date date, Utilisateur expediteur, Fil fil) {
 		this.texte = texte;
@@ -32,6 +33,10 @@ public class Message implements Comparable<Message>, Serializable {
 
 	public Fil getFil() {
 		return fil;
+	}
+	
+	public Etat getEtat() {
+		return etat;
 	}
 
 	@Override

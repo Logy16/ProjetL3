@@ -36,10 +36,14 @@ import global.Groupe;
 import global.Message;
 import global.Utilisateur;
 import global.UtilisateurCampus;
+import server.Client;
+import server.Server;
+import server.SimpleAPIServerSQL;
 
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -5093493472239406706L;
+	private Client client;
 	private JPanel affichageMess;
 	private JLabel nomTicket = new JLabel("Aucun sujet choisi pour le moment");
 	private JLabel txtSaisie = new JLabel("Envoyer un message dans : ");
@@ -47,11 +51,18 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	private JButton buttnewSubject = new JButton("Nouveau Sujet");
 	private JButton buttRefresh = new JButton("Rafraichir");
 	private JTextArea zoneSaisie;
+	Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
+	
+	private Fil selectedFil = null;
+	
+	private List<Groupe> listgrp = new ArrayList<>();
+	private List<Fil> listeFil = new ArrayList<>();
 
-	public InterfaceUtilisateur() {
+	public InterfaceUtilisateur(Client c) {
 		super();
 		this.setTitle("Interface Utilisateur");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.client = c;
 
 	// Créations des composants
 		// Créations des Panels
@@ -59,13 +70,10 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		JPanel gauche = new JPanel();
 		JPanel bouton = new JPanel();
 		
-		/*
-		 *************** BD ***************** 
-		 * Récupérer les groupes et les fils de discussion
-		*/
+		//TODO : Récupérer les groupes et les fils de discussion
+		//listgrp = 
+		//listeFil = 
 		
-		List<Groupe> listgrp = new ArrayList<>();
-		List<Fil> listeFil = new ArrayList<>();
 			//Partie de test à supprimer
 			Groupe groupeTest1 = new Groupe("TDA1");
 			Groupe groupeTest2 = new Groupe("TDA2");
@@ -75,7 +83,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			listgrp.add(groupeTest2);
 			listgrp.add(groupeTest3);
 			listgrp.add(groupeTest4);
-			Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
+			
 			Fil filtest = new Fil("Sujet écriture", groupeTest2, test);
 			Fil filtest2 = new Fil("Sujet 1", groupeTest1, test);
 			filtest.addMessage(new Message("Test de message 1", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest2), filtest));
@@ -114,19 +122,29 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 						 listeTickets.getLastSelectedPathComponent();
 		        if(node.getChildCount() == 0) {
 		        	Object nodeInfo = node.getUserObject();
-		        	Fil selectedFil = null;
-		        	
 		        	affichageMess.removeAll();
+		        	
 			        nomTicket.setText(nodeInfo.toString());		
 			        txtSaisie.setText("Envoyer un message dans : <<" + nodeInfo + ">>");
+			        
 			        for(Fil sameFil : listeFil) {
 			        	if(sameFil.getSujet().equals(nodeInfo)) {
 			        		 selectedFil = sameFil;
 			        	}
 			        }
+			        
 			        for(Iterator<Message> ite = selectedFil.getMessages().iterator(); ite.hasNext();) {
 			        	Message currentMess = ite.next();
-			        	affichageMess.add(new JLabel("<html>" +currentMess.getTexte() + "<br/>" + currentMess.getExpediteur() + "<br/><br/></html>"));
+			        	JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
+			        			+ currentMess.getExpediteur().getNom() + ", " 
+			        			+ currentMess.getDate() + "<br/><br/></html>");
+			        	switch(currentMess.getEtat()) {
+			        		case EN_ATTENTE: labelMessage.setBackground(Color.RED);
+			        		case LU: labelMessage.setBackground(Color.ORANGE);
+			        		case RECU: labelMessage.setBackground(Color.GREEN);
+			        	}
+			        	labelMessage.setOpaque(true);
+			        	affichageMess.add(labelMessage);
 			        }
 		        }  		
 			}
@@ -179,6 +197,11 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		saisieTxt.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		contentPane.setBackground(Color.LIGHT_GRAY);
+		
+		//Ajout des listeners sur les boutons
+		buttnewSubject.addActionListener(this);
+		buttonEnvoyer.addActionListener(this);
+		buttRefresh.addActionListener(this);
 
 
 		// Paramétrage de la fenêtre
@@ -191,18 +214,24 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == buttonEnvoyer) {
-			/*
-			 *************** BD ***************** 
-			 * Ajouter en base le message
-			*/
-			Message currentMess = new Message(zoneSaisie.getText(), new Date(LocalDateTime.now().toString())
-					, null, null);
+			Message currentMess = new Message(zoneSaisie.getText(), new Date(), test, selectedFil);
+			//TODO : Ajouter le message en base
+			
+			affichageMess.add(new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
+        			+ currentMess.getExpediteur().getNom() + ", " 
+        			+ currentMess.getDate() + "<br/><br/></html>"));
 			SwingUtilities.updateComponentTreeUI(this);
 			zoneSaisie.setText("");
 		}
+		
 		if(e.getSource() == buttnewSubject) {
-			
+			AddFil newFil = new AddFil(listgrp, listeFil);
+			newFil.setModal(true);	
+			newFil.setVisible(true);
+			this.listeFil = newFil.getnewListFil();
+			SwingUtilities.updateComponentTreeUI(this);
 		}
+		
 		if(e.getSource() == buttRefresh) {
 			SwingUtilities.updateComponentTreeUI(this);
 		}

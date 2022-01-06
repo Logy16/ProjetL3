@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -31,10 +32,12 @@ public class InterfaceServeur extends JFrame {
 	// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
+		JTabbedPane onglets = new JTabbedPane();
 		JPanel bas = new JPanel();
 		
 		//Récupérer la liste des utilisateurs
 		List<Utilisateur> listUtilisateur = new ArrayList<>();
+		List<Groupe> listGroupe = new ArrayList<>();
 		//Test Local a supprimer
 			Groupe grp1 = new Groupe("TDDDD");
 			Groupe grp2 = new Groupe("TTTTTD");
@@ -51,11 +54,16 @@ public class InterfaceServeur extends JFrame {
 			listUtilisateur.add(test4);
 			listUtilisateur.add(test5);
 		
-		ListUtilisateurTableau modele = new ListUtilisateurTableau(listUtilisateur);
-		JTable listeEG = new JTable(modele);
-		listeEG.setRowHeight(50);
+		//On génère les tableaux d'utilisateurs et de groupes
+		ListUtilisateurTableau modeleUti = new ListUtilisateurTableau(listUtilisateur);
+		JTable listeUti = new JTable(modeleUti);
+		listeUti.setRowHeight(50);
 		
-		TableColumnModel modeleColonne = listeEG.getColumnModel();
+		ListGroupeTableau modeleGrp = new ListGroupeTableau(listGroupe);
+		JTable listeGrp = new JTable(modeleGrp);
+		listeUti.setRowHeight(50);
+		
+		TableColumnModel modeleColonne = listeUti.getColumnModel();
 		for (int i=0; i<4; i++) {
 			modeleColonne.getColumn(i).setPreferredWidth(150);
 			modeleColonne.getColumn(i).setCellRenderer(new RenduGroupeTableau());
@@ -63,7 +71,10 @@ public class InterfaceServeur extends JFrame {
 		
 		// Paramétrages des composants
 		contentPane.setLayout(new BorderLayout());
-		contentPane.add(listeEG, BorderLayout.CENTER);
+		contentPane.add(onglets, BorderLayout.CENTER);
+		
+		onglets.addTab("Utilisateurs", listeUti);
+		onglets.addTab("Groupes", listeGrp);
 		
 		// Paramétrage de la fenêtre
 		this.setContentPane(contentPane);
