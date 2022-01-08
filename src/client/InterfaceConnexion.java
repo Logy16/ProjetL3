@@ -6,8 +6,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,13 +16,11 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import global.Utilisateur;
-import server.Client;
-import server.Server;
 
 public class InterfaceConnexion extends JFrame implements ActionListener {
-	
+
 	private static final long serialVersionUID = -6832595074713893710L;
-	
+
 	private JLabel labelUsername = new JLabel("Identifiant");
 	private JLabel labelMdp = new JLabel("Mot de passe");
 	private JLabel error = new JLabel("");
@@ -32,27 +28,27 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 	private JPasswordField saisieMdp = new JPasswordField();
 	private JLabel labelChoix = new JLabel("Choix de l'interface");
 	private JComboBox<String> choixInterface = new JComboBox<>();
-	
+
 	private JButton buttConnexion = new JButton("Connexion");
 
 	public InterfaceConnexion() {
 		super();
 		this.setTitle("Connexion");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		choixInterface.addItem("Utilisateur");
 		choixInterface.addItem("Gestion");
-		
-	// Créations des composants
+
+		// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel panelConnexion = new JPanel();
 		JPanel panelValidation = new JPanel();
-		
+
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(panelConnexion, BorderLayout.CENTER);
 		contentPane.add(panelValidation, BorderLayout.SOUTH);
-		
+
 		panelConnexion.setLayout(new GridLayout(3, 2, 10, 10));
 		panelConnexion.add(labelUsername, 0);
 		panelConnexion.add(saisieUsername, 1);
@@ -61,36 +57,33 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 		panelConnexion.add(labelChoix, 4);
 		panelConnexion.add(choixInterface, 5);
 		error.setForeground(Color.RED);
-		
+
 		panelValidation.setLayout(new BorderLayout(0, 20));
 		panelValidation.add(buttConnexion, BorderLayout.CENTER);
 		panelValidation.add(error, BorderLayout.NORTH);
-		
+
 		buttConnexion.addActionListener(this);
-		
+
 		this.setContentPane(contentPane);
 		this.pack();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==buttConnexion) {
-			if(saisieUsername.getText().isEmpty() || saisieMdp.getPassword().length == 0) {
+		if (e.getSource() == buttConnexion) {
+			if (saisieUsername.getText().isEmpty() || saisieMdp.getPassword().length == 0) {
 				error.setText("Identifiant ou mot de passe invalide");
-			}else {
-				Server.main(null);
-				Client client = null;
+			} else {
 				Utilisateur connectedUser = null;
 				try {
-					client = new Client(new Socket("localhost", 7777));
-					if(client.demandeConnexion(saisieUsername.getText(), saisieMdp.getPassword().toString())) {
+					if (client.demandeConnexion(saisieUsername.getText(), saisieMdp.getPassword().toString())) {
 						client.getUtilisateur(saisieUsername.getText());
 					}
 				} catch (IOException | ClassNotFoundException e1) {
 					e1.printStackTrace();
 				}
-				
-				if(choixInterface.getSelectedItem().equals("Utilisateur")) {
+
+				if (choixInterface.getSelectedItem().equals("Utilisateur")) {
 					InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
 					iUtilisateur.setVisible(true);
 					this.dispose();
