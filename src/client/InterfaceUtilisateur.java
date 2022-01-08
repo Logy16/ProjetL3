@@ -1,7 +1,6 @@
 package client;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -9,43 +8,32 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
-import global.Agents;
 import global.Fil;
 import global.Groupe;
 import global.Message;
 import global.Utilisateur;
-import global.UtilisateurCampus;
 import server.Client;
-import server.Server;
-import server.SimpleAPIServerSQL;
 
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
@@ -241,7 +229,8 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		}
 		
 		if(e.getSource() == buttRefresh) {
-
+			DefaultTreeModel model = (DefaultTreeModel) listeTickets.getModel();
+			model.reload();
 		}
 	}
 	

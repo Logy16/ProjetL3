@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,8 +15,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -24,12 +25,14 @@ import global.Agents;
 import global.Groupe;
 import global.Utilisateur;
 import global.UtilisateurCampus;
+import server.Client;
 
 public class UpdateUtilisateur extends JDialog implements ActionListener{
 
 	private static final long serialVersionUID = 3720849060290140719L;
 
 	private InterfaceServeur parent;
+	private Client client;
 
 	private JLabel labelNom = new JLabel("Nom");
 	private JLabel labelPrenom = new JLabel("Prénom");
@@ -49,35 +52,22 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 	
 	private List<Groupe> listeGroupe = new ArrayList<>();
 	
-	public UpdateUtilisateur(InterfaceServeur parent) {
+	public UpdateUtilisateur(InterfaceServeur parent, Client c) {
 		super();
 		this.setTitle("Interface Serveur");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		this.parent = parent;
+		this.client = c;
 
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
 
-		// Créations des composants
+	// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel panelSaisieDonnees = new JPanel();
 		JPanel panelGroupeCheckBox = new JPanel();
 		JPanel panelValidation = new JPanel();
-		//Test Local a supprimer
-		Groupe grp1 = new Groupe("TDDDD");
-		Groupe grp2 = new Groupe("TTTTTD");
-		Utilisateur test = new Agents("TEST1", "testeur1", "test3", "mdptest");
-		Utilisateur test2 = new Agents("TEST2", "testeu2r", "test3", "mdptest");
-		Utilisateur test3 = new UtilisateurCampus("TEST3", "testeu3r", "test2", "mdptest");
-		Utilisateur test4 = new Agents("TEST4", "testeu4r", "test3", "mdptest");
-		Utilisateur test5 = new Agents("TEST5", "testeu5r", "test3", "mdptest");
-		grp1.addUtilisateurs(test2,test4);
-		grp2.addUtilisateurs(test,test4);
-		listeGroupe.add(grp1);
-		listeGroupe.add(grp2);
-		listeGroupe.add(grp1);
-		listeGroupe.add(grp2);
 
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(panelSaisieDonnees, BorderLayout.CENTER);
@@ -118,35 +108,23 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		this.pack();
 	}
 
-	public UpdateUtilisateur(InterfaceServeur parent, String nom, String prenom) {
+	public UpdateUtilisateur(InterfaceServeur parent, String nom, String prenom, Client c) {
 		super();
 		this.setTitle("Interface Serveur");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		this.parent = parent;
+		this.client = c;
 
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
 
-		// Créations des composants
+	// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel panelSaisieDonnees = new JPanel();
 		JPanel panelGroupeCheckBox = new JPanel();
 		JPanel panelValidation = new JPanel();
-		//Test Local a supprimer
-		Groupe grp1 = new Groupe("TDDDD");
-		Groupe grp2 = new Groupe("TTTTTD");
-		Utilisateur test = new Agents("TEST1", "testeur1", "test3", "mdptest");
-		Utilisateur test2 = new Agents("TEST2", "testeu2r", "test3", "mdptest");
-		Utilisateur test3 = new UtilisateurCampus("TEST3", "testeu3r", "test2", "mdptest");
-		Utilisateur test4 = new Agents("TEST4", "testeu4r", "test3", "mdptest");
-		Utilisateur test5 = new Agents("TEST5", "testeu5r", "test3", "mdptest");
-		grp1.addUtilisateurs(test2,test4);
-		grp2.addUtilisateurs(test,test4);
-		listeGroupe.add(grp1);
-		listeGroupe.add(grp2);
-		listeGroupe.add(grp1);
-		listeGroupe.add(grp2);
+
 
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(panelSaisieDonnees, BorderLayout.CENTER);
@@ -190,52 +168,83 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==buttValiderAjout) {
-			//if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty() || saisieUsername.getText().isEmpty() || saisieMdp.getText().isEmpty())) {
-
-			//}
-			List<Groupe> groupesChoisis = new ArrayList<>();
-			int cpt = 0;
-			for(int i = 0; i<listeGroupe.size(); i++) {
-				if(choixgroupes.get(i).isSelected()) {
-					groupesChoisis.add(listeGroupe.get(i));
-					cpt++;
+			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty() || saisieUsername.getText().isEmpty() || saisieMdp.getText().isEmpty())) {
+				List<Groupe> groupesChoisis = new ArrayList<>();
+				int cpt = 0;
+				for(int i = 0; i<listeGroupe.size(); i++) {
+					if(choixgroupes.get(i).isSelected()) {
+						groupesChoisis.add(listeGroupe.get(i));
+						cpt++;
+					}
 				}
-			}
-
-			List<Utilisateur> listUsers = this.parent.getListUser();
-			ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
-			Utilisateur newUser = null;
-			if(choixType.getSelectedItem().toString().equals("Agents")) {
-				newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), 
-						saisieUsername.getText(), saisieMdp.getText(), new Groupe("Bloquer"));
+				List<Utilisateur> listUsers = this.parent.getListUser();
+				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
+				Utilisateur newUser = null;
+				if(choixType.getSelectedItem().toString().equals("Agents")) {
+					newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), 
+							saisieUsername.getText(), saisieMdp.getText());
+					newUser.addGroups(groupesChoisis);
+					try {
+						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), 
+								saisieUsername.getText(), saisieMdp.getText());
+						for(Groupe grp : groupesChoisis) {
+							if(grp.equals(null))
+								break;
+							client.addUserToGroupe(newUser, grp);
+						}	
+					} catch (ClassNotFoundException | IOException e1) {
+						e1.printStackTrace();
+					}
+				}else {
+					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
+							saisieUsername.getText(), saisieMdp.getText());
+					newUser.addGroups(groupesChoisis);
+					try {
+						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
+								saisieUsername.getText(), saisieMdp.getText());
+						for(Groupe grp : groupesChoisis) {
+							if(grp.equals(null))
+								break;
+							client.addUserToGroupe(newUser, grp);
+						}	
+					} catch (ClassNotFoundException | IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				listUsers.add(newUser);
+				modeletableUtilisateur.addRow(newUser.getNom());
+				this.dispose();
 			}else {
-				newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
-						saisieUsername.getText(), saisieMdp.getText(), new Groupe("Bloquer"));
+				JOptionPane.showMessageDialog(this, "Les informations ne doivent pas être vident");
 			}
-			listUsers.add(newUser);
-			modeletableUtilisateur.addRow(newUser.getNom());
-			this.dispose();
 		}
 		
 		if(e.getSource()==buttValiderModif) {
-			//if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty())) {
-
-			//}
-			List<Utilisateur> listUsers = this.parent.getListUser();
-			ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
-			JTable tableUtilisateur = this.parent.getTableUtilsateur();
-			String nameUserToModify = (String) modeletableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0);
-			Utilisateur uti = null;
-			for(Iterator<Utilisateur> ite = listUsers.iterator(); ite.hasNext();) {
-				uti = ite.next();
-				if(uti.getNom().equals(nameUserToModify)) {
-					break;
+			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty())) {
+				List<Utilisateur> listUsers = this.parent.getListUser();
+				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
+				JTable tableUtilisateur = this.parent.getTableUtilsateur();
+				String nameUserToModify = (String) modeletableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0);
+				Utilisateur uti = null;
+				for(Iterator<Utilisateur> ite = listUsers.iterator(); ite.hasNext();) {
+					uti = ite.next();
+					if(uti.getNom().equals(nameUserToModify)) {
+						break;
+					}
 				}
+				try {
+					client.modifierNomUser(uti, saisieNom.getText());
+					client.modifierPrenomUser(uti, saisiePrenom.getText());
+				} catch (ClassNotFoundException | IOException e1) {
+					e1.printStackTrace();
+				}
+				uti.setNom(saisieNom.getText());
+				uti.setPrenom(saisiePrenom.getText());
+				modeletableUtilisateur.fireTableRowsUpdated(tableUtilisateur.getSelectedRow(), tableUtilisateur.getSelectedRow());
+				this.dispose();
+			}else {
+				JOptionPane.showMessageDialog(this, "Les informations ne doivent pas être vident");
 			}
-			uti.setNom(saisieNom.getText());
-			uti.setPrenom(saisiePrenom.getText());
-			modeletableUtilisateur.fireTableRowsUpdated(tableUtilisateur.getSelectedRow(), tableUtilisateur.getSelectedRow());
-			this.dispose();
 		}
 	}
 
