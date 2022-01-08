@@ -63,7 +63,6 @@ public class Client {
 				Utilisateur newUser = client.addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo",
 						newGroupe);
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

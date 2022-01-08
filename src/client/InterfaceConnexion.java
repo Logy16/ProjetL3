@@ -29,7 +29,7 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 	private JTextField saisieUsername = new JTextField();
 	private JPasswordField saisieMdp = new JPasswordField();
 	private JButton buttConnexion = new JButton("Connexion");
-	
+
 	public InterfaceConnexion() {
 		super();
 		this.setTitle("Connexion");
@@ -104,17 +104,12 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 			} else {
 				Utilisateur connectedUser = null;
 				String pwd = "";
-				for(char c : saisieMdp.getPassword()){
+				for (char c : saisieMdp.getPassword()) {
 					pwd += c;
 				}
 				try {
-<<<<<<< HEAD
-					System.out.println(saisieUsername.getText() + saisieMdp.getPassword().toString());
-					if (client.demandeConnexion(saisieUsername.getText(), saisieMdp.getPassword().toString())) {
-=======
 					if (client.demandeConnexion(saisieUsername.getText(), pwd)) {
->>>>>>> b1be2aa72679abe937e1b910a99d5db913230357
-						client.getUtilisateur(saisieUsername.getText());
+						connectedUser = client.getUtilisateur(saisieUsername.getText());
 					}
 				} catch (IOException | ClassNotFoundException e1) {
 					e1.printStackTrace();
