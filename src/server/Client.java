@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.SortedSet;
 
 import global.Etat;
 import global.Fil;
@@ -21,10 +24,14 @@ import global.dto.DemandeDeConnexionDto;
 import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
+import global.dto.GroupeDto;
+import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
+import global.dto.StringDto;
+import global.dto.UtilisateurDto;
 
 public class Client {
 	private Socket socket;
@@ -75,6 +82,11 @@ public class Client {
 			System.out.println("modification de DI SCALA en " + modified1.getNom());
 			Utilisateur modified2 = modifierPrenomUser(modified1, "cursedJules");
 			System.out.println("modification de Jules en " + modified2.getPrenom());
+			System.out.println(getFil("Nouveau fil").toString());
+			System.out.println(getFils(newGroupe).toString());
+			System.out.println(getGroupe("TPA41").toString());
+			System.out.println(Arrays.toString(getGroupe("TPA41").getUtilisateurs()));
+			System.out.println(getGroupes(getUtilisateur("Pastorale")).toString());
 			// supprimerGroupe(newGroupe2);
 			// supprimerUtilisateur(newUser2);
 			while (true)
@@ -98,6 +110,44 @@ public class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Utilisateur getUtilisateur(String identifiant) throws IOException, ClassNotFoundException {
+		StringDto getUtilisateur = new StringDto(TypeOperation.GET_UTILISATEUR_STRING, identifiant);
+		objectOutputStream.writeObject(getUtilisateur);
+		return (Utilisateur) objectInputStream.readObject();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Set<Groupe> getGroupes(Utilisateur utilisateur) throws IOException, ClassNotFoundException {
+		UtilisateurDto getGroupes = new UtilisateurDto(TypeOperation.GET_GROUPE_UTILISATEUR, utilisateur);
+		objectOutputStream.writeObject(getGroupes);
+		return (Set<Groupe>) objectInputStream.readObject();
+	}
+
+	public Groupe getGroupe(String nom) throws IOException, ClassNotFoundException {
+		StringDto getGroupe = new StringDto(TypeOperation.GET_GROUPE_STRING, nom);
+		objectOutputStream.writeObject(getGroupe);
+		return (Groupe) objectInputStream.readObject();
+	}
+
+	public Fil getFil(int id) throws IOException, ClassNotFoundException {
+		IntegerDto getFil = new IntegerDto(TypeOperation.GET_FIL_INT, id);
+		objectOutputStream.writeObject(getFil);
+		return (Fil) objectInputStream.readObject();
+	}
+
+	@SuppressWarnings("unchecked")
+	public SortedSet<Fil> getFils(Groupe groupe) throws IOException, ClassNotFoundException {
+		GroupeDto getFils = new GroupeDto(TypeOperation.GET_FIL_GROUPE, groupe);
+		objectOutputStream.writeObject(getFils);
+		return (SortedSet<Fil>) objectInputStream.readObject();
+	}
+
+	public Fil getFil(String titre) throws IOException, ClassNotFoundException {
+		StringDto getFil = new StringDto(TypeOperation.GET_FIL_STRING, titre);
+		objectOutputStream.writeObject(getFil);
+		return (Fil) objectInputStream.readObject();
 	}
 
 	public Groupe createGroupe(String nom) throws IOException, ClassNotFoundException {

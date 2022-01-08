@@ -78,4 +78,8 @@ public class Groupe implements Comparable<Groupe>, Serializable {
 		return 31 * nom.hashCode();
 	}
 
+	@Override
+	public String toString() {
+		return this.nom;
+	}
 }

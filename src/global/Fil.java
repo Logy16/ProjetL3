@@ -71,4 +71,9 @@ public class Fil implements Comparable<Fil>, Serializable {
 		return ((Fil) o).createur.equals(createur) && messages.first().equals(((Fil) o).messages.first());
 	}
 
+	@Override
+	public String toString() {
+		return this.sujet;
+	}
+
 }
