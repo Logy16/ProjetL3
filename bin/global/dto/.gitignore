@@ -10,3 +10,7 @@
 /LireFilDto.class
 /SendMessageDto.class
 /SimpleDto.class
+/DeleteGroupDto.class
+/DeleteUserDto.class
+/ModifyUserDto.class
+/AddAgentDto.class
