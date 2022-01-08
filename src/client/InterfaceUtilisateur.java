@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -60,19 +61,19 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	private DefaultMutableTreeNode node;
    	private Object nodeInfo;
 	
-	Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
-	
+	private Utilisateur connectedUser;
 	private Fil selectedFil = null;
 	
-	private List<Groupe> listgrp = new ArrayList<>();
-	private List<Fil> listeFil = new ArrayList<>();
+	private Set<Groupe> listgrp;
+	private Set<Fil> listeFil;
 	private List<DefaultMutableTreeNode> listNoeud = new ArrayList<>();
 
-	public InterfaceUtilisateur(Client c) {
+	public InterfaceUtilisateur(Utilisateur connectedUser, Client c) {
 		super();
 		this.setTitle("Interface Utilisateur");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.client = c;
+		this.connectedUser = connectedUser;
 
 	// Créations des composants
 		// Créations des Panels
@@ -80,31 +81,19 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		JPanel gauche = new JPanel();
 		JPanel bouton = new JPanel();
 		
-		//TODO : Récupérer les groupes et les fils de discussion
-		//listgrp = 
-		//listeFil = 
-		
-			//Partie de test à supprimer
-			Groupe groupeTest1 = new Groupe("TDA1");
-			Groupe groupeTest2 = new Groupe("TDA2");
-			Groupe groupeTest3 = new Groupe("TDA3");
-			Groupe groupeTest4 = new Groupe("TDA4");
-			listgrp.add(groupeTest1);
-			listgrp.add(groupeTest2);
-			listgrp.add(groupeTest3);
-			listgrp.add(groupeTest4);
-			
-			Fil filtest = new Fil("Sujet écriture", groupeTest2, test);
-			Fil filtest2 = new Fil("Sujet 1", groupeTest1, test);
-			filtest.addMessage(new Message("Test de message 1", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest2), filtest));
-			filtest.addMessage(new Message("Test de message 2", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest2), filtest));
-			filtest2.addMessage(new Message("Test de message 11", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest1), filtest2));
-			filtest2.addMessage(new Message("Test de message 12", new Date(), new UtilisateurCampus("a", "a", "a", "a", groupeTest1), filtest2));
-			listeFil.add(filtest);
-			listeFil.add(filtest2);
-			listeFil.add(new Fil("Sujet 2", groupeTest2, test));
-			listeFil.add(new Fil("Sujet jeux vidéo", groupeTest3, test));
-			listeFil.add(new Fil("Sujet cours POOMO", groupeTest4, test));
+		//Récupérer les groupes et les fils de discussion
+		try {
+			listgrp = this.client.getGroupes(connectedUser);
+			for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
+				Groupe actualGroupe = iteGrp.next();
+				for(Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteGrp.hasNext();) {
+					Fil actualFil = iteFil.next();
+					listeFil.add(actualFil);
+				}	
+			}
+		} catch (ClassNotFoundException | IOException e1) {
+			e1.printStackTrace();
+		}
 		
 		for(Groupe grp : listgrp) {
 			listeGroupBox.addItem(grp);
@@ -112,13 +101,15 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			
 		//Création de l'arbre
 		DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Racine");
-		for(int i = 0; i<listgrp.size(); i++) {
-			DefaultMutableTreeNode noeud = new DefaultMutableTreeNode(listgrp.get(i).getNom());
+		for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
+			Groupe actualGroupe = iteGrp.next();
+			DefaultMutableTreeNode noeud = new DefaultMutableTreeNode(actualGroupe.getNom());
 			listNoeud.add(noeud);
 			racine.add(noeud);
-			for(int j = 0; j<listeFil.size(); j++) {
-				if(listeFil.get(j).getGroupe().equals(listgrp.get(i))) {
-					DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(listeFil.get(j).getSujet());
+			for(Iterator<Fil> iteFil = listeFil.iterator(); iteFil.hasNext();) {
+				Fil actualFil = iteFil.next();
+				if(actualFil.getGroupe().equals(actualGroupe)) {
+					DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(actualFil.getSujet());
 					noeud.add(feuille);
 				}
 			}		
@@ -152,9 +143,10 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			        			+ currentMess.getExpediteur().getNom() + ", " 
 			        			+ currentMess.getDate() + "<br/><br/></html>");
 			        	switch(currentMess.getEtat()) {
-			        		case EN_ATTENTE: labelMessage.setBackground(Color.RED);
-			        		case LU: labelMessage.setBackground(Color.ORANGE);
-			        		case RECU: labelMessage.setBackground(Color.GREEN);
+			        		case EN_ATTENTE: labelMessage.setBackground(Color.RED);break;
+			        		case LU: labelMessage.setBackground(Color.ORANGE);break;
+			        		case RECU: labelMessage.setBackground(Color.GREEN);break;
+			        		default:break;
 			        	}
 			        	labelMessage.setOpaque(true);
 			        	affichageMess.add(labelMessage);
@@ -228,7 +220,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == buttonEnvoyer) {
 			if(!zoneSaisie.getText().isEmpty()) {
-				Message currentMess = new Message(zoneSaisie.getText(), new Date(), test, selectedFil);
+				Message currentMess = new Message(zoneSaisie.getText(), new Date(), this.connectedUser, selectedFil);
 				
 				/*Fil filSelected = null;
 				for(Fil fil : listeFil) {
@@ -252,9 +244,9 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		}
 		
 		if(e.getSource() == buttnewSubject) {
-			AddFil newFil = new AddFil(this, listgrp, listeFil);
+			/*AddFil newFil = new AddFil(this, this.connectedUser, listgrp, listeFil);
 			newFil.setModal(true);	
-			newFil.setVisible(true);
+			newFil.setVisible(true);*/
 		}
 		
 		if(e.getSource() == buttRefresh) {
@@ -264,5 +256,9 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	
 	public JTree getTree() {
 		return this.listeTickets;
+	}
+	
+	public Client getClient() {
+		return this.client;
 	}
 }

@@ -14,3 +14,7 @@
 /DeleteUserDto.class
 /ModifyUserDto.class
 /AddAgentDto.class
+/GroupeDto.class
+/IntegerDto.class
+/StringDto.class
+/UtilisateurDto.class

@@ -59,6 +59,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		// accepte les connexions de chaque client et cree un nouveau thread pour chacun
+		new Server();
 		while (!serverSocket.isClosed()) {
 			try {
 				System.out.println("Waiting socket creation ...");
