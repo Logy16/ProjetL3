@@ -44,35 +44,48 @@ public class Server {
 
 	private static final int PORT_NUM = 7777;
 	private static APIServerSQL api;
+	private static ServerSocket serverSocket;
 
-	@SuppressWarnings("resource")
-	public static void main(String[] args) {
-		Socket socket = null;
-		ServerSocket serverSocket = null;
+	public Server() {
 		try {
-			serverSocket = new ServerSocket(PORT_NUM);
+			Server.serverSocket = new ServerSocket(PORT_NUM);
 			Connection connection = DriverManager
 					.getConnection("jdbc:mysql://localhost:3306/projets5?serverTimezone=UTC", "root", "");
-			api = new SimpleAPIServerSQL(connection);
+			Server.api = new SimpleAPIServerSQL(connection);
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public static void main(String[] args) {
 		// accepte les connexions de chaque client et cree un nouveau thread pour chacun
-		while (true) {
+		while (!serverSocket.isClosed()) {
 			try {
 				System.out.println("Waiting socket creation ...");
-				if (serverSocket != null) {
-					System.out.println("Waiting client connection ...");
-					socket = serverSocket.accept();
-					System.out.println("Client attempting connection ...");
-					new ServerThread(socket, api);
-					System.out.println("Client connected!");
-				}
+				System.out.println("Waiting client connection ...");
+				Socket socket = serverSocket.accept();
+				System.out.println("Client attempting connection ...");
+				new ServerThread(socket, api);
+				System.out.println("Client connected!");
 			} catch (NullPointerException | IOException e) {
 				e.printStackTrace();
 				System.out.println("Client failed connection ...");
 			}
+		}
+	}
+
+	public void closeEverything(ServerSocket serverSocket, Socket... socket) {
+		try {
+			if (serverSocket != null) {
+				serverSocket.close();
+			}
+			for (Socket s : socket) {
+				if (s != null) {
+					s.close();
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -242,26 +255,32 @@ public class Server {
 			}
 		}
 
+		@Override
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
 		}
 
+		@Override
 		public Set<Groupe> getGroupe(UtilisateurDto dto) {
 			return api.getGroupesFromUser(dto.getUtilisateur());
 		}
 
+		@Override
 		public Groupe getGroupe(StringDto dto) {
 			return api.getGroupe(dto.getString());
 		}
 
+		@Override
 		public Fil getFil(StringDto dto) {
 			return api.getFil(dto.getString());
 		}
 
+		@Override
 		public SortedSet<Fil> getFil(GroupeDto dto) {
 			return api.getFils(dto.getGroupe());
 		}
 
+		@Override
 		public Fil getFil(IntegerDto dto) {
 			return api.getFil(dto.getInteger());
 		}
