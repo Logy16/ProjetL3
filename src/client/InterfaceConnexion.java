@@ -16,28 +16,26 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import global.Utilisateur;
+import server.Client;
 
 public class InterfaceConnexion extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -6832595074713893710L;
+	
+	private Client client;
 
 	private JLabel labelUsername = new JLabel("Identifiant");
 	private JLabel labelMdp = new JLabel("Mot de passe");
 	private JLabel error = new JLabel("");
 	private JTextField saisieUsername = new JTextField();
 	private JPasswordField saisieMdp = new JPasswordField();
-	private JLabel labelChoix = new JLabel("Choix de l'interface");
-	private JComboBox<String> choixInterface = new JComboBox<>();
-
 	private JButton buttConnexion = new JButton("Connexion");
 
-	public InterfaceConnexion() {
+	public InterfaceConnexion(Client client) {
 		super();
 		this.setTitle("Connexion");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		choixInterface.addItem("Utilisateur");
-		choixInterface.addItem("Gestion");
+		this.client = client;
 
 		// Créations des composants
 		// Créations des Panels
@@ -49,13 +47,11 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 		contentPane.add(panelConnexion, BorderLayout.CENTER);
 		contentPane.add(panelValidation, BorderLayout.SOUTH);
 
-		panelConnexion.setLayout(new GridLayout(3, 2, 10, 10));
+		panelConnexion.setLayout(new GridLayout(2, 2, 10, 10));
 		panelConnexion.add(labelUsername, 0);
 		panelConnexion.add(saisieUsername, 1);
 		panelConnexion.add(labelMdp, 2);
 		panelConnexion.add(saisieMdp, 3);
-		panelConnexion.add(labelChoix, 4);
-		panelConnexion.add(choixInterface, 5);
 		error.setForeground(Color.RED);
 
 		panelValidation.setLayout(new BorderLayout(0, 20));
@@ -82,16 +78,9 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 				} catch (IOException | ClassNotFoundException e1) {
 					e1.printStackTrace();
 				}
-
-				if (choixInterface.getSelectedItem().equals("Utilisateur")) {
-					InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
-					iUtilisateur.setVisible(true);
-					this.dispose();
-				} else {
-					InterfaceServeur iServer = new InterfaceServeur(connectedUser, client);
-					iServer.setVisible(true);
-					this.dispose();
-				}
+				InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
+				iUtilisateur.setVisible(true);
+				this.dispose();	
 			}
 		}
 	}

@@ -2,12 +2,15 @@ package client;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -17,6 +20,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,13 +38,15 @@ public class AddFil extends JDialog implements ActionListener{
 	private InterfaceUtilisateur parent;
 	private Utilisateur connectedUser;
 	
-	private List<Fil> newListFil;
+	private Set<Fil> newListFil;
+	private Set<Groupe> newListGrp;
 	
 	private JButton buttValider = new JButton("Valider");
 	private JTextField saisieSujet = new JTextField(20);
+	private JTextArea saisieFirstMessage = new JTextArea();
 	private JComboBox<String> listeGroupBox = new JComboBox<>();
 
-	public AddFil(InterfaceUtilisateur parent, Utilisateur connectedUser, List<Groupe> listGroup, List<Fil> listFil) {
+	public AddFil(InterfaceUtilisateur parent, Utilisateur connectedUser, Set<Groupe> listGroup, Set<Fil> listFil) {
 		super();
 		this.setTitle("Interface Ajout Fil");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -48,6 +54,7 @@ public class AddFil extends JDialog implements ActionListener{
 		this.parent = parent;
 		this.connectedUser = connectedUser;
 		this.newListFil = listFil;
+		this.newListGrp = listGroup;
 		
 		JPanel contentPane = new JPanel();
 		JPanel subjectPane = new JPanel();
@@ -55,14 +62,16 @@ public class AddFil extends JDialog implements ActionListener{
 		JPanel validationPane = new JPanel();
 		
 		saisieSujet.setBorder(BorderFactory.createTitledBorder("Sujet"));
+		saisieFirstMessage.setBorder(BorderFactory.createTitledBorder("Premier Message"));
 		
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(subjectPane, BorderLayout.NORTH);
 		contentPane.add(groupePane, BorderLayout.CENTER);
 		contentPane.add(validationPane, BorderLayout.SOUTH);
 		
-		subjectPane.setLayout(new FlowLayout(FlowLayout.LEFT));
+		subjectPane.setLayout(new GridLayout(2, 1, 10, 10));
 		subjectPane.add(saisieSujet);
+		subjectPane.add(saisieFirstMessage);
 		
 
 		groupePane.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -107,22 +116,34 @@ public class AddFil extends JDialog implements ActionListener{
 			if(saisieSujet.getText().isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Le champ sujet doit être renseigner");
 			}else {
-				JTree listeTickets = this.parent.getTree();
-				Fil newFil = null;
-				//Ajouter en base
+				JTree tree = parent.getTree();
 				Client client = parent.getClient();
+				Groupe actualGrp = null;
+				String nomGrp = listeGroupBox.getSelectedItem().toString();
+				for(Iterator<Groupe> iteGrp = newListGrp.iterator(); iteGrp.hasNext();) {
+					actualGrp = iteGrp.next();
+					if(actualGrp.getNom().equals(nomGrp)) {
+						break;
+					}
+				}
+				Fil newFil = null;
 				try {
-					newFil = client.demandeCreationFil(saisieSujet.getText(), this.connectedUser, (Groupe)listeGroupBox.getSelectedItem(), "");
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
+					newFil = client.demandeCreationFil(saisieSujet.getText(), this.connectedUser, 
+							actualGrp, saisieFirstMessage.getText());
+				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
 				
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
-				DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(newFil.getSujet());
-				node.add(feuille);
-				DefaultTreeModel model = (DefaultTreeModel) listeTickets.getModel();
+				for(int i=0; i<tree.getModel().getChildCount(tree.getModel().getRoot()); i++){
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getModel().getChild(tree.getModel().getRoot(), i);
+					if(nomGrp.equals(selectedNode.toString())) {
+						DefaultMutableTreeNode newFeuille = new DefaultMutableTreeNode(newFil.getSujet());
+						selectedNode.add(newFeuille);
+						break;
+					}
+				}
+
+				DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
 				model.reload();
 				this.newListFil.add(newFil);
 				this.dispose();

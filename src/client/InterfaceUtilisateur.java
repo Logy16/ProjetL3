@@ -12,9 +12,11 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -58,8 +60,6 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	private JButton buttRefresh = new JButton("Rafraichir");
 	private JTextArea zoneSaisie;
 	private JComboBox<Groupe> listeGroupBox = new JComboBox<>();
-	private DefaultMutableTreeNode node;
-   	private Object nodeInfo;
 	
 	private Utilisateur connectedUser;
 	private Fil selectedFil = null;
@@ -123,9 +123,9 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				node = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
-		        if(node.getChildCount() == 0) {
-		        	nodeInfo = node.getUserObject();
+				DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
+		        if(nodeSelected.getChildCount() == 0) {
+		        	Object nodeInfo = nodeSelected.getUserObject();
 		        	affichageMess.removeAll();
 		        	
 			        nomTicket.setText(nodeInfo.toString());		
@@ -221,36 +221,27 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		if(e.getSource() == buttonEnvoyer) {
 			if(!zoneSaisie.getText().isEmpty()) {
 				Message currentMess = new Message(zoneSaisie.getText(), new Date(), this.connectedUser, selectedFil);
-				
-				/*Fil filSelected = null;
-				for(Fil fil : listeFil) {
-					if(fil.getSujet() == node.getUserObject()) {
-						filSelected = fil;
-					}
-				}
-				
 				try {
-					client.sendMessage(currentMess.getTexte(), test, filSelected);
-				}catch (ClassNotFoundException | IOException excep) {
-					System.out.println(excep);
-				}*/
+					client.sendMessage(zoneSaisie.getText(), this.connectedUser, selectedFil);
+				} catch (ClassNotFoundException | IOException e1) {
+					e1.printStackTrace();
+				}
 				
 				affichageMess.add(new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
 	        			+ currentMess.getExpediteur().getNom() + ", " 
 	        			+ currentMess.getDate() + "<br/><br/></html>"));
-				SwingUtilities.updateComponentTreeUI(this);
 				zoneSaisie.setText("");
 			}
 		}
 		
 		if(e.getSource() == buttnewSubject) {
-			/*AddFil newFil = new AddFil(this, this.connectedUser, listgrp, listeFil);
+			AddFil newFil = new AddFil(this, this.connectedUser, listgrp, listeFil);
 			newFil.setModal(true);	
-			newFil.setVisible(true);*/
+			newFil.setVisible(true);
 		}
 		
 		if(e.getSource() == buttRefresh) {
-			SwingUtilities.updateComponentTreeUI(this);
+
 		}
 	}
 	
@@ -260,5 +251,14 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	
 	public Client getClient() {
 		return this.client;
+	}
+	
+	public DefaultMutableTreeNode getSelectedNode() {
+		DefaultMutableTreeNode nodeSelect = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
+		if(nodeSelect.getChildCount()>0) {
+			return nodeSelect;
+		}else {
+			return (DefaultMutableTreeNode) nodeSelect.getParent();
+		}
 	}
 }
