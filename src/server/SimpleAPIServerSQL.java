@@ -105,7 +105,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
 			if (u != null) {
 
-				stmt.execute("UPDATE Utilisateurs SET id='" + toSQLString(utilisateur.getIdentifiant()) + "', prenom='"
+				stmt.execute("UPDATE Utilisateurs SET prenom='"
 						+ toSQLString(utilisateur.getPrenom()) + "', nom='" + toSQLString(utilisateur.getNom())
 						+ "', password='" + toSQLString(utilisateur.getPassword()) + "', type='" + toSQLString(type)
 						+ "' WHERE id='" + toSQLString(utilisateur.getIdentifiant()) + "'");
@@ -412,9 +412,9 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 	// ***************************************
 
 	/**
-	 * Permet de créer un utilisateur à partir d'un ResultSet
+	 * Permet de crï¿½er un utilisateur ï¿½ partir d'un ResultSet
 	 * 
-	 * @param rst : Le ResultSet en entrée
+	 * @param rst : Le ResultSet en entrï¿½e
 	 * @return L'utilisateur
 	 **/
 	private Utilisateur createUtilisateurFromResultSet(ResultSet rst) throws SQLException, UserNotFoundException {
@@ -429,7 +429,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			}
 
 		} else {
-			throw new UserNotFoundException("Utilisateur introuvable dans la base de données !");
+			throw new UserNotFoundException("Utilisateur introuvable dans la base de donnï¿½es !");
 		}
 	}
 
