@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -15,6 +16,7 @@ public class RenduGroupeTableau extends DefaultTableCellRenderer{
 			int row, int column) {
 		
 		setText(String.valueOf(value));
+		setFont(new Font("Arial", Font.BOLD, 12));
 		setHorizontalAlignment(JLabel.CENTER);
 		return this;
 	}

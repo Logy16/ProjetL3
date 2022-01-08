@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.table.AbstractTableModel;
 
 import global.Utilisateur;
@@ -25,7 +26,7 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 4;
+		return 5;
 	}
 
 	@Override
@@ -36,6 +37,7 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 			case 1: return user.getPrenom();
 			case 2: return user. classToString();
 			case 3: return user.listGroupToString();
+			case 4: return new JButton("oui");
 			default : return null;
 		}
 	}
@@ -47,6 +49,7 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 			case 1: return "Prénom";
 			case 2: return "Type";
 			case 3: return "Groupe";
+			case 4: return "Options";
 			default: return null;
 		}
 	}
@@ -55,5 +58,17 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		return false;
 	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		return getValueAt(0, columnIndex).getClass();
+	}
+	
+	 public void addRow(String value){
+	        fireTableRowsInserted(listUti.size() - 1, listUti.size() - 1);
+	        int row = listUti.size() -1 ;
+	        int col = 1;
+	        setValueAt(value, row, col);            
+	 }
 
 }

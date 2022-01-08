@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,8 +19,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -29,6 +32,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import global.Agents;
 import global.Fil;
@@ -44,6 +48,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -5093493472239406706L;
 	private Client client;
+	private JTree listeTickets;
 	private JPanel affichageMess;
 	private JLabel nomTicket = new JLabel("Aucun sujet choisi pour le moment");
 	private JLabel txtSaisie = new JLabel("Envoyer un message dans : ");
@@ -51,12 +56,17 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	private JButton buttnewSubject = new JButton("Nouveau Sujet");
 	private JButton buttRefresh = new JButton("Rafraichir");
 	private JTextArea zoneSaisie;
+	private JComboBox<Groupe> listeGroupBox = new JComboBox<>();
+	private DefaultMutableTreeNode node;
+   	private Object nodeInfo;
+	
 	Utilisateur test = new Agents("TEST", "testeur", "test3", "mdptest");
 	
 	private Fil selectedFil = null;
 	
 	private List<Groupe> listgrp = new ArrayList<>();
 	private List<Fil> listeFil = new ArrayList<>();
+	private List<DefaultMutableTreeNode> listNoeud = new ArrayList<>();
 
 	public InterfaceUtilisateur(Client c) {
 		super();
@@ -96,11 +106,15 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			listeFil.add(new Fil("Sujet jeux vidéo", groupeTest3, test));
 			listeFil.add(new Fil("Sujet cours POOMO", groupeTest4, test));
 		
+		for(Groupe grp : listgrp) {
+			listeGroupBox.addItem(grp);
+		}
+			
 		//Création de l'arbre
-		JTree listeTickets;
 		DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Racine");
 		for(int i = 0; i<listgrp.size(); i++) {
 			DefaultMutableTreeNode noeud = new DefaultMutableTreeNode(listgrp.get(i).getNom());
+			listNoeud.add(noeud);
 			racine.add(noeud);
 			for(int j = 0; j<listeFil.size(); j++) {
 				if(listeFil.get(j).getGroupe().equals(listgrp.get(i))) {
@@ -118,10 +132,9 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-						 listeTickets.getLastSelectedPathComponent();
+				node = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
 		        if(node.getChildCount() == 0) {
-		        	Object nodeInfo = node.getUserObject();
+		        	nodeInfo = node.getUserObject();
 		        	affichageMess.removeAll();
 		        	
 			        nomTicket.setText(nodeInfo.toString());		
@@ -214,21 +227,50 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == buttonEnvoyer) {
-			Message currentMess = new Message(zoneSaisie.getText(), new Date(), test, selectedFil);
-			//TODO : Ajouter le message en base
-			
-			affichageMess.add(new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
-        			+ currentMess.getExpediteur().getNom() + ", " 
-        			+ currentMess.getDate() + "<br/><br/></html>"));
-			SwingUtilities.updateComponentTreeUI(this);
-			zoneSaisie.setText("");
+			if(!zoneSaisie.getText().isEmpty()) {
+				Message currentMess = new Message(zoneSaisie.getText(), new Date(), test, selectedFil);
+				
+				/*Fil filSelected = null;
+				for(Fil fil : listeFil) {
+					if(fil.getSujet() == node.getUserObject()) {
+						filSelected = fil;
+					}
+				}
+				
+				try {
+					client.sendMessage(currentMess.getTexte(), test, filSelected);
+				}catch (ClassNotFoundException | IOException excep) {
+					System.out.println(excep);
+				}*/
+				
+				affichageMess.add(new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
+	        			+ currentMess.getExpediteur().getNom() + ", " 
+	        			+ currentMess.getDate() + "<br/><br/></html>"));
+				SwingUtilities.updateComponentTreeUI(this);
+				zoneSaisie.setText("");
+			}
 		}
 		
 		if(e.getSource() == buttnewSubject) {
-			AddFil newFil = new AddFil(listgrp, listeFil);
+			/*AddFil newFil = new AddFil(listgrp, listeFil);
 			newFil.setModal(true);	
 			newFil.setVisible(true);
 			this.listeFil = newFil.getnewListFil();
+			String repSujet = JOptionPane.showInputDialog("Saisir le sujet");
+			String grpSelecteed = JOptionPane.showInputDialog(listeGroupBox);
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+					 listeTickets.getLastSelectedPathComponent()
+			TreeNode groupeTree = node.getParent();
+			Groupe repGroupe = null;
+			for(Groupe grp : listgrp) {
+				if(grp.getNom() == groupeTree.toString()) {
+					repGroupe = grp;
+				}
+			}
+			
+			Fil newFil = new Fil(repSujet, repGroupe, test);*/
+			
+			
 			SwingUtilities.updateComponentTreeUI(this);
 		}
 		
