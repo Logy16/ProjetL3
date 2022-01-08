@@ -2,6 +2,8 @@ package server;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Set;
+import java.util.SortedSet;
 
 import global.Etat;
 import global.Fil;
@@ -17,9 +19,13 @@ import global.dto.DeleteGroupDto;
 import global.dto.DeleteUserDto;
 import global.dto.DemandeDeConnexionDto;
 import global.dto.GetMessageStateDto;
+import global.dto.GroupeDto;
+import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
 import global.dto.SendMessageDto;
+import global.dto.StringDto;
+import global.dto.UtilisateurDto;
 
 public interface IServer {
 
@@ -172,4 +178,64 @@ public interface IServer {
 	 * @author Nemo
 	 **/
 	public void supprimerGroupe(DeleteGroupDto dto);
+
+	/**
+	 * Permet d'obtenir un utilisateur à partir de son identifiant
+	 * 
+	 * @param dto : Data transfer object contenant l'identifiant de l'utilisateur
+	 *            que l'on souhaite obtenir
+	 * @return l'utilisateur lié à l'identifiant
+	 * @author Nemo
+	 **/
+	public Utilisateur getUtilisateur(StringDto dto);
+
+	/**
+	 * Permet d'obtenir l'ensemble des groupes liés à un utilisateur
+	 * 
+	 * @param dto : Data transfer object contenant l'utilisateur dont on souhaite
+	 *            obtenir les groupes
+	 * @return l'ensemble des groupes liés à l'utilisateur
+	 * @author Nemo
+	 **/
+	public Set<Groupe> getGroupe(UtilisateurDto dto);
+
+	/**
+	 * Permet d'obtenir un groupe à partir de son nom
+	 * 
+	 * @param dto : Data transfer object contenant le nom du groupe que l'on
+	 *            souhaite obtenir
+	 * @return le groupe lié au nom
+	 * @author Nemo
+	 **/
+	public Groupe getGroupe(StringDto dto);
+
+	/**
+	 * Permet d'obtenir un fil à partir de son nom
+	 * 
+	 * @param dto : Data transfer object contenant le nom du fil que l'on souhaite
+	 *            obtenir
+	 * @return le fil lié au nom
+	 * @author Nemo
+	 **/
+	public Fil getFil(StringDto dto);
+
+	/**
+	 * Permet d'obtenir l'ensemble des fils liés à un groupe
+	 * 
+	 * @param dto : Data transfer object contenant le groupe dont on souhaite
+	 *            obtenir les fils
+	 * @return l'ensemble des fils liés au groupe
+	 * @author Nemo
+	 **/
+	public SortedSet<Fil> getFil(GroupeDto dto);
+
+	/**
+	 * Permet d'obtenir un fil à partir de son identifiant
+	 * 
+	 * @param dto : Data transfer object contenant l'identifiant du fil que l'on
+	 *            souhaite obtenir
+	 * @return le fil lié à l'identifiant
+	 * @author Nemo
+	 **/
+	public Fil getFil(IntegerDto dto);
 }

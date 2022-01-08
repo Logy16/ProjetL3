@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -23,25 +24,29 @@ import javax.swing.tree.DefaultTreeModel;
 
 import global.Fil;
 import global.Groupe;
+import global.Utilisateur;
+import server.Client;
 
 public class AddFil extends JDialog implements ActionListener{
 	
 	private static final long serialVersionUID = -4018302795480161975L;
 	
 	private InterfaceUtilisateur parent;
+	private Utilisateur connectedUser;
 	
 	private List<Fil> newListFil;
 	
 	private JButton buttValider = new JButton("Valider");
-	private JTextField saisieSujet = new JTextField(10);
-	private JComboBox<Groupe> listeGroupBox = new JComboBox<>();
+	private JTextField saisieSujet = new JTextField(20);
+	private JComboBox<String> listeGroupBox = new JComboBox<>();
 
-	public AddFil(InterfaceUtilisateur parent, List<Groupe> listGroup, List<Fil> listFil) {
+	public AddFil(InterfaceUtilisateur parent, Utilisateur connectedUser, List<Groupe> listGroup, List<Fil> listFil) {
 		super();
 		this.setTitle("Interface Ajout Fil");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
 		this.parent = parent;
+		this.connectedUser = connectedUser;
 		this.newListFil = listFil;
 		
 		JPanel contentPane = new JPanel();
@@ -62,7 +67,7 @@ public class AddFil extends JDialog implements ActionListener{
 
 		groupePane.setLayout(new FlowLayout(FlowLayout.LEFT));
 		for(Groupe grp : listGroup) {
-			listeGroupBox.addItem(grp);
+			listeGroupBox.addItem(grp.getNom());
 		}
 		listeGroupBox.setBorder(BorderFactory.createTitledBorder("Groupe"));
 		listeGroupBox.setPreferredSize(saisieSujet.getPreferredSize());
@@ -103,8 +108,17 @@ public class AddFil extends JDialog implements ActionListener{
 				JOptionPane.showMessageDialog(this, "Le champ sujet doit être renseigner");
 			}else {
 				JTree listeTickets = this.parent.getTree();
-				Fil newFil = new Fil(saisieSujet.getText(), (Groupe)listeGroupBox.getSelectedItem() , null);
+				Fil newFil = null;
 				//Ajouter en base
+				Client client = parent.getClient();
+				try {
+					newFil = client.demandeCreationFil(saisieSujet.getText(), this.connectedUser, (Groupe)listeGroupBox.getSelectedItem(), "");
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
 				DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(newFil.getSujet());
 				node.add(feuille);

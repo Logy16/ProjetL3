@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 
 import global.Utilisateur;
 import server.Client;
+import server.Server;
 
 public class InterfaceConnexion extends JFrame implements ActionListener {
 	
@@ -77,28 +78,24 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 			if(saisieUsername.getText().isEmpty() || saisieMdp.getPassword().length == 0) {
 				error.setText("Identifiant ou mot de passe invalide");
 			}else {
-				//TODO : Tester existance utilisateur
+				Server.main(null);
 				Client client = null;
 				Utilisateur connectedUser = null;
 				try {
 					client = new Client(new Socket("localhost", 7777));
 					if(client.demandeConnexion(saisieUsername.getText(), saisieMdp.getPassword().toString())) {
-						//connectedUser =
+						client.getUtilisateur(saisieUsername.getText());
 					}
-				} catch (UnknownHostException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
+				} catch (IOException | ClassNotFoundException e1) {
 					e1.printStackTrace();
 				}
 				
 				if(choixInterface.getSelectedItem().equals("Utilisateur")) {
-					InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(client);
+					InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
 					iUtilisateur.setVisible(true);
 					this.dispose();
 				} else {
-					InterfaceServeur iServer = new InterfaceServeur();
+					InterfaceServeur iServer = new InterfaceServeur(connectedUser, client);
 					iServer.setVisible(true);
 					this.dispose();
 				}

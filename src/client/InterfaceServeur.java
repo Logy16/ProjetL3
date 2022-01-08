@@ -30,10 +30,13 @@ import global.Agents;
 import global.Groupe;
 import global.Utilisateur;
 import global.UtilisateurCampus;
+import server.Client;
 
-public class InterfaceServeur extends JFrame implements ActionListener, TableModelListener{
+public class InterfaceServeur extends JFrame implements ActionListener{
 
 	private static final long serialVersionUID = -2410156028365273198L;
+	
+	private Utilisateur connectedUser;
 	
 	private JButton buttAjouter = new JButton("Ajouter");
 	private JButton buttModif = new JButton("Modifier");
@@ -49,10 +52,11 @@ public class InterfaceServeur extends JFrame implements ActionListener, TableMod
 	private List<Utilisateur> listUtilisateur = new ArrayList<>();
 	private List<Groupe> listGroupe = new ArrayList<>();
 
-	public InterfaceServeur() {
+	public InterfaceServeur(Utilisateur connectedUser, Client c) {
 		super();
 		this.setTitle("Interface Serveur");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.connectedUser = connectedUser;
 		
 	// Créations des composants
 		// Créations des Panels
@@ -202,12 +206,6 @@ public class InterfaceServeur extends JFrame implements ActionListener, TableMod
 				}
 			}
 		}
-		
-	}
-
-	@Override
-	public void tableChanged(TableModelEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	

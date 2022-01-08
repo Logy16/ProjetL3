@@ -10,6 +10,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
 
 import global.Agents;
 import global.Etat;
@@ -29,44 +31,62 @@ import global.dto.DemandeDeConnexionDto;
 import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
+import global.dto.GroupeDto;
+import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
+import global.dto.StringDto;
+import global.dto.UtilisateurDto;
 
 public class Server {
 
 	private static final int PORT_NUM = 7777;
 	private static APIServerSQL api;
+	private static ServerSocket serverSocket;
 
-	@SuppressWarnings("resource")
-	public static void main(String[] args) {
-		Socket socket = null;
-		ServerSocket serverSocket = null;
+	public Server() {
 		try {
-			serverSocket = new ServerSocket(PORT_NUM);
+			Server.serverSocket = new ServerSocket(PORT_NUM);
 			Connection connection = DriverManager
 					.getConnection("jdbc:mysql://localhost:3306/projets5?serverTimezone=UTC", "root", "");
-			api = new SimpleAPIServerSQL(connection);
+			Server.api = new SimpleAPIServerSQL(connection);
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public static void main(String[] args) {
 		// accepte les connexions de chaque client et cree un nouveau thread pour chacun
-		while (true) {
+		new Server();
+		while (!serverSocket.isClosed()) {
 			try {
 				System.out.println("Waiting socket creation ...");
-				if (serverSocket != null) {
-					System.out.println("Waiting client connection ...");
-					socket = serverSocket.accept();
-					System.out.println("Client attempting connection ...");
-					new ServerThread(socket, api);
-					System.out.println("Client connected!");
-				}
+				System.out.println("Waiting client connection ...");
+				Socket socket = serverSocket.accept();
+				System.out.println("Client attempting connection ...");
+				new ServerThread(socket, api);
+				System.out.println("Client connected!");
 			} catch (NullPointerException | IOException e) {
 				e.printStackTrace();
 				System.out.println("Client failed connection ...");
 			}
+		}
+	}
+
+	public void closeEverything(ServerSocket serverSocket, Socket... socket) {
+		try {
+			if (serverSocket != null) {
+				serverSocket.close();
+			}
+			for (Socket s : socket) {
+				if (s != null) {
+					s.close();
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -168,6 +188,63 @@ public class Server {
 						DeleteUserDto dtoDU = (DeleteUserDto) globalDto;
 						supprimerUtilisateur(dtoDU);
 						break;
+					case GET_FIL_GROUPE:
+						GroupeDto dtoGFG = (GroupeDto) globalDto;
+						SortedSet<Fil> groupeFilReturn = getFil(dtoGFG);
+						if (groupeFilReturn != null) {
+							objectOutputStream.writeObject(groupeFilReturn);
+						} else {
+							throw new IllegalArgumentException(
+									"No fil binded to this value: " + dtoGFG.getGroupe().getNom());
+						}
+						break;
+					case GET_FIL_INT:
+						IntegerDto dtoGFI = (IntegerDto) globalDto;
+						Fil intFilReturn = getFil(dtoGFI);
+						if (intFilReturn != null) {
+							objectOutputStream.writeObject(intFilReturn);
+						} else {
+							throw new IllegalArgumentException("No fil binded to this value: " + dtoGFI.getInteger());
+						}
+						break;
+					case GET_FIL_STRING:
+						StringDto dtoGFS = (StringDto) globalDto;
+						Fil stringFilReturn = getFil(dtoGFS);
+						if (stringFilReturn != null) {
+							objectOutputStream.writeObject(stringFilReturn);
+						} else {
+							throw new IllegalArgumentException("No fil binded to this value: " + dtoGFS.getString());
+						}
+						break;
+					case GET_GROUPE_STRING:
+						StringDto dtoGGS = (StringDto) globalDto;
+						Groupe stringGroupeReturn = getGroupe(dtoGGS);
+						if (stringGroupeReturn != null) {
+							objectOutputStream.writeObject(stringGroupeReturn);
+						} else {
+							throw new IllegalArgumentException("No groupe binded to this value: " + dtoGGS.getString());
+						}
+						break;
+					case GET_GROUPE_UTILISATEUR:
+						UtilisateurDto dtoGGU = (UtilisateurDto) globalDto;
+						Set<Groupe> utilisateurGroupeReturn = getGroupe(dtoGGU);
+						if (utilisateurGroupeReturn != null) {
+							objectOutputStream.writeObject(utilisateurGroupeReturn);
+						} else {
+							throw new IllegalArgumentException(
+									"No groupe binded to this value: " + dtoGGU.getUtilisateur());
+						}
+						break;
+					case GET_UTILISATEUR_STRING:
+						StringDto dtoGUS = (StringDto) globalDto;
+						Utilisateur utilisateurReturn = getUtilisateur(dtoGUS);
+						if (utilisateurReturn != null) {
+							utilisateurReturn.addGroups(api.getGroupesFromUser(utilisateurReturn));
+							objectOutputStream.writeObject(utilisateurReturn);
+						} else {
+							throw new IllegalArgumentException("No user binded to this value: " + dtoGUS.getString());
+						}
+						break;
 					default:
 						break;
 					}
@@ -179,6 +256,36 @@ public class Server {
 			}
 		}
 
+		@Override
+		public Utilisateur getUtilisateur(StringDto dto) {
+			return api.getUtilisateur(dto.getString());
+		}
+
+		@Override
+		public Set<Groupe> getGroupe(UtilisateurDto dto) {
+			return api.getGroupesFromUser(dto.getUtilisateur());
+		}
+
+		@Override
+		public Groupe getGroupe(StringDto dto) {
+			return api.getGroupe(dto.getString());
+		}
+
+		@Override
+		public Fil getFil(StringDto dto) {
+			return api.getFil(dto.getString());
+		}
+
+		@Override
+		public SortedSet<Fil> getFil(GroupeDto dto) {
+			return api.getFils(dto.getGroupe());
+		}
+
+		@Override
+		public Fil getFil(IntegerDto dto) {
+			return api.getFil(dto.getInteger());
+		}
+
 		public void closeEverything(Socket s, ObjectInputStream objectInputStream,
 				ObjectOutputStream objectOutputStream) {
 			try {
@@ -188,8 +295,8 @@ public class Server {
 				if (objectOutputStream != null) {
 					objectOutputStream.close();
 				}
-				if (socket != null) {
-					socket.close();
+				if (s != null) {
+					s.close();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -312,7 +419,6 @@ public class Server {
 		public Utilisateur modifierNomUser(ModifyUserDto dto) {
 			dto.getUser().setNom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
-			
 			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
 			u.addGroups(api.getGroupesFromUser(u));
 			return u;
@@ -322,8 +428,6 @@ public class Server {
 		public Utilisateur modifierPrenomUser(ModifyUserDto dto) {
 			dto.getUser().setPrenom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
-			
-			
 			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
 			u.addGroups(api.getGroupesFromUser(u));
 			return u;
