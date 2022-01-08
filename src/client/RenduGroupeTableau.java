@@ -18,6 +18,7 @@ public class RenduGroupeTableau extends DefaultTableCellRenderer{
 		setText(String.valueOf(value));
 		setFont(new Font("Arial", Font.BOLD, 12));
 		setHorizontalAlignment(JLabel.CENTER);
+		
 		return this;
 	}
 

@@ -252,30 +252,17 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		}
 		
 		if(e.getSource() == buttnewSubject) {
-			/*AddFil newFil = new AddFil(listgrp, listeFil);
+			AddFil newFil = new AddFil(this, listgrp, listeFil);
 			newFil.setModal(true);	
 			newFil.setVisible(true);
-			this.listeFil = newFil.getnewListFil();
-			String repSujet = JOptionPane.showInputDialog("Saisir le sujet");
-			String grpSelecteed = JOptionPane.showInputDialog(listeGroupBox);
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-					 listeTickets.getLastSelectedPathComponent()
-			TreeNode groupeTree = node.getParent();
-			Groupe repGroupe = null;
-			for(Groupe grp : listgrp) {
-				if(grp.getNom() == groupeTree.toString()) {
-					repGroupe = grp;
-				}
-			}
-			
-			Fil newFil = new Fil(repSujet, repGroupe, test);*/
-			
-			
-			SwingUtilities.updateComponentTreeUI(this);
 		}
 		
 		if(e.getSource() == buttRefresh) {
 			SwingUtilities.updateComponentTreeUI(this);
 		}
+	}
+	
+	public JTree getTree() {
+		return this.listeTickets;
 	}
 }

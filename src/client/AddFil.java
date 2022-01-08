@@ -13,9 +13,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import global.Fil;
 import global.Groupe;
@@ -24,17 +28,20 @@ public class AddFil extends JDialog implements ActionListener{
 	
 	private static final long serialVersionUID = -4018302795480161975L;
 	
+	private InterfaceUtilisateur parent;
+	
 	private List<Fil> newListFil;
 	
 	private JButton buttValider = new JButton("Valider");
 	private JTextField saisieSujet = new JTextField(10);
 	private JComboBox<Groupe> listeGroupBox = new JComboBox<>();
 
-	public AddFil(List<Groupe> listGroup, List<Fil> listFil) {
+	public AddFil(InterfaceUtilisateur parent, List<Groupe> listGroup, List<Fil> listFil) {
 		super();
 		this.setTitle("Interface Ajout Fil");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		
+		this.parent = parent;
 		this.newListFil = listFil;
 		
 		JPanel contentPane = new JPanel();
@@ -95,16 +102,17 @@ public class AddFil extends JDialog implements ActionListener{
 			if(saisieSujet.getText().isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Le champ sujet doit être renseigner");
 			}else {
-				//Ajouter en base
+				JTree listeTickets = this.parent.getTree();
 				Fil newFil = new Fil(saisieSujet.getText(), (Groupe)listeGroupBox.getSelectedItem() , null);
+				//Ajouter en base
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
+				DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(newFil.getSujet());
+				node.add(feuille);
+				DefaultTreeModel model = (DefaultTreeModel) listeTickets.getModel();
+				model.reload();
 				this.newListFil.add(newFil);
 				this.dispose();
 			}	
 		}
-	} 
-	
-	public List<Fil> getnewListFil(){
-		return this.newListFil;
 	}
-
 }

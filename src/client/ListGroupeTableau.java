@@ -24,7 +24,7 @@ public class ListGroupeTableau extends AbstractTableModel{
 
 	@Override
 	public int getColumnCount() {
-		return 2;
+		return 1;
 	}
 
 	@Override
@@ -32,7 +32,6 @@ public class ListGroupeTableau extends AbstractTableModel{
 		Groupe grp = this.listGroupe.get(rowIndex);
 		switch(columnIndex) {
 			case 0: return grp.getNom();
-			case 1: return new JButton("oui");
 			default : return null;
 		}
 	}
@@ -41,7 +40,6 @@ public class ListGroupeTableau extends AbstractTableModel{
 	public String getColumnName(int columnIndex) {
 		switch(columnIndex) {
 			case 0: return "Nom";
-			case 1: return "Options";
 			default: return null;
 		}
 	}
@@ -50,6 +48,13 @@ public class ListGroupeTableau extends AbstractTableModel{
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		return false;
 	}
+	
+	 public void addRow(String value){
+        fireTableRowsInserted(listGroupe.size() - 1, listGroupe.size() - 1);
+        int row = listGroupe.size() -1 ;
+        int col = 1;
+        setValueAt(value, row, col);            
+	 }
 	
 	
 }

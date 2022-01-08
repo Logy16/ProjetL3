@@ -26,7 +26,7 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 5;
+		return 4;
 	}
 
 	@Override
@@ -37,7 +37,6 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 			case 1: return user.getPrenom();
 			case 2: return user. classToString();
 			case 3: return user.listGroupToString();
-			case 4: return new JButton("oui");
 			default : return null;
 		}
 	}
@@ -49,7 +48,6 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 			case 1: return "Prénom";
 			case 2: return "Type";
 			case 3: return "Groupe";
-			case 4: return "Options";
 			default: return null;
 		}
 	}

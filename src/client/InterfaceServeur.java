@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -21,6 +23,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.plaf.TableUI;
 import javax.swing.table.TableColumnModel;
 
 import global.Agents;
@@ -32,12 +35,9 @@ public class InterfaceServeur extends JFrame implements ActionListener, TableMod
 
 	private static final long serialVersionUID = -2410156028365273198L;
 	
-	private JButton buttAjouterUti = new JButton("Ajouter un utilisateur");
-	private JButton buttModifUti = new JButton("Modifier un utilisateur");
-	private JButton buttDeleteUti = new JButton("Supprimer un utilisateur");
-	private JButton buttAjouterGrp = new JButton("Ajouter un groupe");
-	private JButton buttModifGrp = new JButton("Modifier un groupe");
-	private JButton buttDeleteGrp = new JButton("Supprimer un groupe");
+	private JButton buttAjouter = new JButton("Ajouter");
+	private JButton buttModif = new JButton("Modifier");
+	private JButton buttDelete = new JButton("Supprimer");
 	
 	private JTabbedPane onglets = new JTabbedPane();
 	private JTable tableUtilisateur;
@@ -109,35 +109,25 @@ public class InterfaceServeur extends JFrame implements ActionListener, TableMod
 		onglets.addTab("Utilisateurs", new JScrollPane(tableUtilisateur));
 		onglets.addTab("Groupes", new JScrollPane(tableGrp));
 		
-		bas.setLayout(new FlowLayout(5, 20, 20));
-		if(onglets.getTitleAt(0).equals("Utilisateurs")) {
-			bas.removeAll();
-			bas.add(buttAjouterUti);
-			bas.add(buttModifUti);
-			bas.add(buttDeleteUti);
-		}/*else {
-			bas.removeAll();
-			bas.add(buttAjouterGrp);
-			bas.add(buttModifGrp);
-			bas.add(buttDeleteGrp);
-		}*/
-		System.out.println(onglets.getTitleAt(0));
-		System.out.println(onglets.getTitleAt(1));
-		System.out.println(onglets.getTitleAt(0).equals("Utilisateurs"));
+		bas.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
+		buttAjouter.setPreferredSize(new Dimension(100, 25));
+		buttModif.setPreferredSize(buttAjouter.getPreferredSize());
+		buttDelete.setPreferredSize(buttAjouter.getPreferredSize());
+		bas.add(buttAjouter);
+		bas.add(buttModif);
+		bas.add(buttDelete);
+
 		
 		//Listeners
-		buttAjouterUti.addActionListener(this);
-		buttModifUti.addActionListener(this);
-		buttDeleteUti.addActionListener(this);
-		buttAjouterGrp.addActionListener(this);
-		buttModifGrp.addActionListener(this);
-		buttDeleteGrp.addActionListener(this);
+		buttAjouter.addActionListener(this);
+		buttModif.addActionListener(this);
+		buttDelete.addActionListener(this);
 		
 		tableUtilisateur.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				//Clique sur une ligne
+				//Clique sur une ligne pour surligner
 			}
 		});
 		
@@ -149,22 +139,22 @@ public class InterfaceServeur extends JFrame implements ActionListener, TableMod
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(onglets.getTitleAt(0).equals("Utilisateurs")) {
-			if(e.getSource()==buttAjouterUti) {
-				AjouterUtilisateur frameAjout = new AjouterUtilisateur(this);
+		if(onglets.getTitleAt(onglets.getSelectedIndex()).equals("Utilisateurs")) {
+			if(e.getSource()==buttAjouter) {
+				UpdateUtilisateur frameAjout = new UpdateUtilisateur(this);
 				frameAjout.setVisible(true);
 				frameAjout.setModal(false);
 				
 			}
 			
-			if(e.getSource()==buttModifUti) {
+			if(e.getSource()==buttModif) {
 				UpdateUtilisateur frameModif = new UpdateUtilisateur(this, tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString(),
 						tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 1).toString());		
 				frameModif.setVisible(true);
 				frameModif.setModal(true);
 			}
 			
-			if(e.getSource()==buttDeleteUti) {
+			if(e.getSource()==buttDelete) {
 				for(Iterator<Utilisateur> ite = listUtilisateur.iterator(); ite.hasNext();) {
 					Utilisateur actualUti = ite.next();
 					if(actualUti.getNom().equals(tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString())) {
@@ -175,9 +165,42 @@ public class InterfaceServeur extends JFrame implements ActionListener, TableMod
 					}
 				}
 			}
-			
 		}else {
+			if(e.getSource()==buttAjouter) {
+				String repNomGrp = JOptionPane.showInputDialog("Saisir le nom du groupe");
+				if(!repNomGrp.isEmpty()) {
+					Groupe newGrp = new Groupe(repNomGrp);
+					listGroupe.add(newGrp);
+					modeleGrp.addRow(newGrp.getNom());
+					//TODO : Ajouter en base
+				}else {
+					JOptionPane.showMessageDialog(this, "Veuillez saisir quelque chose");
+				}
+			}
 			
+			if(e.getSource()==buttModif) {
+				for(Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
+					Groupe actualGrp = ite.next();
+					if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
+						String repNewNomGrp = JOptionPane.showInputDialog("Saisir le nom du groupe", actualGrp.getNom());
+						actualGrp.setNom(repNewNomGrp);
+						//TODO : Modifier en base
+						modeleGrp.fireTableRowsUpdated(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
+					}
+				}
+			}
+			
+			if(e.getSource()==buttDelete) {
+				for(Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
+					Groupe actualGrp = ite.next();
+					if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
+						ite.remove();
+						//TODO : effacer en base
+						modeleGrp.fireTableRowsDeleted(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
+						break;
+					}
+				}
+			}
 		}
 		
 	}
