@@ -87,8 +87,8 @@ public class Client {
 			System.out.println(getGroupe("TPA41").toString());
 			System.out.println(Arrays.toString(getGroupe("TPA41").getUtilisateurs()));
 			System.out.println(getGroupes(getUtilisateur("Pastorale")).toString());
-			// supprimerGroupe(newGroupe2);
-			// supprimerUtilisateur(newUser2);
+			supprimerGroupe(newGroupe2);
+			supprimerUtilisateur(newUser2);
 			while (true)
 				;
 		} catch (IOException | ClassNotFoundException e) {
