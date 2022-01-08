@@ -1,6 +1,7 @@
 package global;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
@@ -32,7 +33,16 @@ public abstract class Utilisateur implements Serializable {
 			g.addUtilisateurs(this);
 		}
 	}
-
+	public void addGroups(Groupe... gs) {
+		for (Groupe g : gs) {
+			g.addUtilisateurs(this);
+		}
+	}
+	public void addGroups(Collection<Groupe> gs) {
+		for (Groupe g : gs) {
+			g.addUtilisateurs(this);
+		}
+	}
 	public String getNom() {
 		return nom;
 	}

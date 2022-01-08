@@ -312,14 +312,21 @@ public class Server {
 		public Utilisateur modifierNomUser(ModifyUserDto dto) {
 			dto.getUser().setNom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
-			return api.getUtilisateur(dto.getUser().getIdentifiant());
+			
+			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
+			u.addGroups(api.getGroupesFromUser(u));
+			return u;
 		}
 
 		@Override
 		public Utilisateur modifierPrenomUser(ModifyUserDto dto) {
 			dto.getUser().setPrenom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
-			return api.getUtilisateur(dto.getUser().getIdentifiant());
+			
+			
+			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
+			u.addGroups(api.getGroupesFromUser(u));
+			return u;
 		}
 
 		@Override
