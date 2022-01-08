@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,7 +20,7 @@ import server.Client;
 public class InterfaceConnexion extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -6832595074713893710L;
-	
+
 	private Client client;
 
 	private JLabel labelUsername = new JLabel("Identifiant");
@@ -72,6 +71,7 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 			} else {
 				Utilisateur connectedUser = null;
 				try {
+					System.out.println(saisieUsername.getText() + saisieMdp.getPassword().toString());
 					if (client.demandeConnexion(saisieUsername.getText(), saisieMdp.getPassword().toString())) {
 						client.getUtilisateur(saisieUsername.getText());
 					}
@@ -80,7 +80,7 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 				}
 				InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
 				iUtilisateur.setVisible(true);
-				this.dispose();	
+				this.dispose();
 			}
 		}
 	}
