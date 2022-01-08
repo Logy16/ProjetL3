@@ -14,3 +14,5 @@
 /DeleteUserDto.class
 /ModifyUserDto.class
 /AddAgentDto.class
+/IntegerDto.class
+/StringDto.class

@@ -29,34 +29,81 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 	public final static String UTILISATEUR_TEXT = "USER";
 
 	private final static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-	public SimpleAPIServerSQL(Connection c) {
-		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-		connection = c;
+	private void sendResultlessRequest(String s) {
 		try {
-			Statement stmt = c.createStatement();
-
-			// Creation des tables si elles n'existent pas
-
-			// Les tables de base (utilisateurs, groupes, fils, messages)
-			stmt.execute(
-					"CREATE TABLE IF NOT EXISTS Utilisateurs (id VARCHAR(50) NOT NULL PRIMARY KEY, prenom VARCHAR(50) NOT NULL, nom VARCHAR(50) NOT NULL, type VARCHAR(50) NOT NULL, password VARCHAR(255) NOT NULL)");
-			stmt.execute("CREATE TABLE IF NOT EXISTS Groupes (nomG VARCHAR(50) NOT NULL PRIMARY KEY)");
-			stmt.execute(
-					"CREATE TABLE IF NOT EXISTS Fils (idF int NOT NULL AUTO_INCREMENT PRIMARY KEY, titre VARCHAR(255) NOT NULL, f_g_id VARCHAR(50), f_u_id VARCHAR(50), FOREIGN KEY (f_g_id) REFERENCES Groupes(nomG) ON DELETE CASCADE, FOREIGN KEY (f_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE)");
-			stmt.execute(
-					"CREATE TABLE IF NOT EXISTS Messages (idM int NOT NULL AUTO_INCREMENT PRIMARY KEY, contenu VARCHAR(255) NOT NULL, date TIMESTAMP NOT NULL, m_u_id VARCHAR(50), m_f_id int, FOREIGN KEY (m_f_id) REFERENCES Fils(idF) ON DELETE CASCADE, FOREIGN KEY (m_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE)");
-
-			// Les tables de relation
-			stmt.execute(
-					"CREATE TABLE IF NOT EXISTS LinkUtilisateurGroupe (lug_u_id VARCHAR(50), lug_g_id VARCHAR(50), PRIMARY KEY (lug_u_id, lug_g_id), FOREIGN KEY (lug_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE, FOREIGN KEY (lug_g_id) REFERENCES Groupes(nomG) ON DELETE CASCADE)");
-			stmt.execute(
-					"CREATE TABLE IF NOT EXISTS Lectures (l_u_id VARCHAR(50), l_m_id int, PRIMARY KEY (l_u_id, l_m_id), state VARCHAR(10) DEFAULT 'NONE', FOREIGN KEY (l_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE, FOREIGN KEY (l_m_id) REFERENCES Messages(idM) ON DELETE CASCADE)");
+			Statement stmt = connection.createStatement();
+			stmt.execute(s);
 			stmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return;
 		}
+	}
+	public SimpleAPIServerSQL(Connection c) {
+		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+		connection = c;
+		// Creation des tables si elles n'existent pas
+
+		// Les tables de base (utilisateurs, groupes, fils, messages)
+		sendResultlessRequest("SET FOREIGN_KEY_CHECKS=1");
+		sendResultlessRequest(
+			"CREATE TABLE IF NOT EXISTS Utilisateurs ("
+			+ "id VARCHAR(50) PRIMARY KEY NOT NULL, "
+			+ "prenom VARCHAR(50) NOT NULL, "
+			+ "nom VARCHAR(50) NOT NULL, "
+			+ "type VARCHAR(50) NOT NULL, "
+			+ "password VARCHAR(255) NOT NULL"
+			+ ") ENGINE=InnoDB"
+		);
+		
+		sendResultlessRequest("CREATE TABLE IF NOT EXISTS Groupes ("
+			+ "nomG VARCHAR(50) PRIMARY KEY NOT NULL"
+			+ ") ENGINE=InnoDB"
+		);
+		
+		sendResultlessRequest(
+			"CREATE TABLE IF NOT EXISTS Fils ("
+			+ "idF int PRIMARY KEY NOT NULL AUTO_INCREMENT, "
+			+ "titre VARCHAR(255) NOT NULL, "
+			+ "f_g_id VARCHAR(50), "
+			+ "f_u_id VARCHAR(50), "
+			+ "FOREIGN KEY (f_g_id) REFERENCES Groupes(nomG) ON DELETE CASCADE, "
+			+ "FOREIGN KEY (f_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE"
+			+ ") ENGINE=InnoDB"
+		);
+		
+		sendResultlessRequest(
+			"CREATE TABLE IF NOT EXISTS Messages ("
+			+ "idM int NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+			+ "contenu VARCHAR(255) NOT NULL, "
+			+ "date TIMESTAMP NOT NULL, "
+			+ "m_u_id VARCHAR(50), "
+			+ "m_f_id int, "
+			+ "FOREIGN KEY (m_f_id) REFERENCES Fils(idF) ON DELETE CASCADE, "
+			+ "FOREIGN KEY (m_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE"
+			+ ") ENGINE=InnoDB"
+		);
+
+		// Les tables de relation
+		sendResultlessRequest(
+			"CREATE TABLE IF NOT EXISTS LinkUtilisateurGroupe ("
+			+ "lug_u_id VARCHAR(50), "
+			+ "lug_g_id VARCHAR(50), "
+			+ "FOREIGN KEY (lug_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE, "
+			+ "FOREIGN KEY (lug_g_id) REFERENCES Groupes(nomG) ON DELETE CASCADE, "
+			+ "PRIMARY KEY (lug_u_id, lug_g_id)"
+			+ ") ENGINE=InnoDB"
+		);
+		sendResultlessRequest(
+			"CREATE TABLE IF NOT EXISTS Lectures ("
+			+ "l_u_id VARCHAR(50), "
+			+ "l_m_id int, "
+			+ "state VARCHAR(10) DEFAULT 'NONE', "
+			+ "FOREIGN KEY (l_u_id) REFERENCES Utilisateurs(id) ON DELETE CASCADE, "
+			+ "FOREIGN KEY (l_m_id) REFERENCES Messages(idM) ON DELETE CASCADE,"
+			+ "PRIMARY KEY (l_u_id, l_m_id)"
+			+ ") ENGINE=InnoDB"
+		);
+
 	}
 
 	@Override
@@ -90,40 +137,37 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 
 	@Override
 	public boolean setUtilisateur(Utilisateur utilisateur) {
-		try {
-			String type = TECHNICIEN_TEXT;
-			if (utilisateur instanceof UtilisateurCampus) {
-				type = UTILISATEUR_TEXT;
-			}
-			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"
-					+ toSQLString(utilisateur.getIdentifiant()) + "'");
+		String type = TECHNICIEN_TEXT;
+		if (utilisateur instanceof UtilisateurCampus) {
+			type = UTILISATEUR_TEXT;
+		}
+		sendResultlessRequest("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"
+				+ toSQLString(utilisateur.getIdentifiant()) + "'");
+
+		Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
+		if (u != null) {
+
+			sendResultlessRequest("UPDATE Utilisateurs SET prenom='"
+					+ toSQLString(utilisateur.getPrenom()) + "', nom='" + toSQLString(utilisateur.getNom())
+					+ "', password='" + toSQLString(utilisateur.getPassword()) + "', type='" + toSQLString(type)
+					+ "' WHERE id='" + toSQLString(utilisateur.getIdentifiant()) + "'");
 			for (Groupe g : utilisateur.getGroupes()) {
-				stmt.execute("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
+				sendResultlessRequest("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
 						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(g.getNom()) + "')");
 			}
-			Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
-			if (u != null) {
-
-				stmt.execute("UPDATE Utilisateurs SET prenom='"
-						+ toSQLString(utilisateur.getPrenom()) + "', nom='" + toSQLString(utilisateur.getNom())
-						+ "', password='" + toSQLString(utilisateur.getPassword()) + "', type='" + toSQLString(type)
-						+ "' WHERE id='" + toSQLString(utilisateur.getIdentifiant()) + "'");
-				stmt.close();
-				return true;
-			} else {
-				stmt.execute("INSERT INTO Utilisateurs (id, prenom, nom, password, type) VALUES ('"
-						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(utilisateur.getPrenom())
-						+ "', '" + toSQLString(utilisateur.getNom()) + "', '" + toSQLString(utilisateur.getPassword())
-						+ "', '" + toSQLString(type) + "')");
-				stmt.close();
-				return false;
+			return true;
+		} else {
+			sendResultlessRequest("INSERT INTO Utilisateurs (id, prenom, nom, password, type) VALUES ('"
+					+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(utilisateur.getPrenom())
+					+ "', '" + toSQLString(utilisateur.getNom()) + "', '" + toSQLString(utilisateur.getPassword())
+					+ "', '" + toSQLString(type) + "')");
+			for (Groupe g : utilisateur.getGroupes()) {
+				sendResultlessRequest("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
+						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(g.getNom()) + "')");
 			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+			return false;
 		}
-		return false;
+
 	}
 
 	@Override
@@ -198,22 +242,13 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 
 	@Override
 	public boolean createFil(Fil f) {
-		try {
-			Statement stmt = connection.createStatement();
-			if (getFil(f.getSujet()) != null) {
-				stmt.close();
-				return false;
-			}
-			stmt.execute("INSERT INTO Fils (titre, f_g_id, f_u_id) VALUES ('" + toSQLString(f.getSujet()) + "', '"
-					+ toSQLString(f.getGroupe().getNom()) + "', '" + toSQLString(f.getCreateur().getIdentifiant())
-					+ "')");
-			stmt.close();
-			return true;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (getFil(f.getSujet()) != null) {
+			return false;
 		}
-		return false;
+		sendResultlessRequest("INSERT INTO Fils (titre, f_g_id, f_u_id) VALUES ('" + toSQLString(f.getSujet()) + "', '"
+				+ toSQLString(f.getGroupe().getNom()) + "', '" + toSQLString(f.getCreateur().getIdentifiant())
+				+ "')");
+		return true;
 	}
 
 	@Override
@@ -258,19 +293,11 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 
 	@Override
 	public boolean createGroupe(Groupe groupe) {
-		try {
-			if (getGroupe(groupe.getNom()) != null) {
-				return false;
-			}
-			Statement stmt = connection.createStatement();
-			stmt.execute("INSERT INTO Groupes (nomG) VALUES ('" + toSQLString(groupe.getNom()) + "')");
-			stmt.close();
-			return true;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (getGroupe(groupe.getNom()) != null) {
+			return false;
 		}
-		return false;
+		sendResultlessRequest("INSERT INTO Groupes (nomG) VALUES ('" + toSQLString(groupe.getNom()) + "')");
+		return true;
 	}
 
 	@Override
@@ -288,12 +315,12 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 				id = rst.getInt("idF");
 			}
 			stmt.close();
-			stmt = connection.createStatement();
+
 
 			String dateS = formatter.format(m.getDate());
-			stmt.execute("INSERT INTO Messages (contenu, date, m_f_id, m_u_id) VALUES ('" + toSQLString(m.getTexte())
+			sendResultlessRequest("INSERT INTO Messages (contenu, date, m_f_id, m_u_id) VALUES ('" + toSQLString(m.getTexte())
 					+ "', '" + dateS + "', " + id + ", '" + m.getExpediteur().getIdentifiant() + "')");
-			stmt.close();
+
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -317,16 +344,14 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			stmt = connection.createStatement();
 			rst = stmt.executeQuery(
 					"SELECT * FROM Lectures WHERE l_u_id='" + toSQLString(u.getIdentifiant()) + "' AND l_m_id=" + idM);
-			Statement stmt2 = connection.createStatement();
 			if (rst.next()) {
 
-				stmt2.execute("UPDATE Lectures SET state='SENT' WHERE l_u_id='" + toSQLString(u.getIdentifiant())
+				sendResultlessRequest("UPDATE Lectures SET state='SENT' WHERE l_u_id='" + toSQLString(u.getIdentifiant())
 						+ "' AND l_m_id=" + idM);
 			} else {
-				stmt2.execute("INSERT INTO Lectures (l_u_id, l_m_id, state) VALUES ('" + toSQLString(u.getIdentifiant())
+				sendResultlessRequest("INSERT INTO Lectures (l_u_id, l_m_id, state) VALUES ('" + toSQLString(u.getIdentifiant())
 						+ "', " + idM + ", 'SENT')");
 			}
-			stmt2.close();
 			stmt.close();
 
 		} catch (SQLException | MessageNotFoundException e) {
@@ -351,16 +376,14 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			stmt = connection.createStatement();
 			rst = stmt.executeQuery(
 					"SELECT * FROM Lectures WHERE l_u_id='" + toSQLString(u.getIdentifiant()) + "' AND l_m_id=" + idM);
-			Statement stmt2 = connection.createStatement();
 			if (rst.next()) {
 
-				stmt2.execute("UPDATE Lectures SET state='READ' WHERE l_u_id='" + toSQLString(u.getIdentifiant())
+				sendResultlessRequest("UPDATE Lectures SET state='READ' WHERE l_u_id='" + toSQLString(u.getIdentifiant())
 						+ "' AND l_m_id=" + idM);
 			} else {
-				stmt2.execute("INSERT INTO Lectures (l_u_id, l_m_id, state) VALUES ('" + toSQLString(u.getIdentifiant())
+				sendResultlessRequest("INSERT INTO Lectures (l_u_id, l_m_id, state) VALUES ('" + toSQLString(u.getIdentifiant())
 						+ "', " + idM + ", 'READ')");
 			}
-			stmt2.close();
 			stmt.close();
 
 		} catch (SQLException | MessageNotFoundException e) {
@@ -447,28 +470,12 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 
 	@Override
 	public void removeUtilisateur(Utilisateur utilisateur) {
-		try {
-			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM Utilisateurs WHERE id = '" + toSQLString(utilisateur.getIdentifiant()) + "'");
-
-			stmt.close();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		sendResultlessRequest("DELETE FROM Utilisateurs WHERE id = '" + toSQLString(utilisateur.getIdentifiant()) + "'");
 	}
 
 	@Override
 	public void removeGroupe(Groupe groupe) {
-		try {
-			Statement stmt = connection.createStatement();
-			stmt.execute("DELETE FROM Groupes WHERE nomG = '" + toSQLString(groupe.getNom()) + "'");
-			stmt.close();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+		sendResultlessRequest("DELETE FROM Groupes WHERE nomG = '" + toSQLString(groupe.getNom()) + "'");
 	}
 
 }

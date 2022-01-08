@@ -75,8 +75,8 @@ public class Client {
 			System.out.println("modification de DI SCALA en " + modified1.getNom());
 			Utilisateur modified2 = modifierPrenomUser(modified1, "cursedJules");
 			System.out.println("modification de Jules en " + modified2.getPrenom());
-			// supprimerGroupe(newGroupe2);
-			// supprimerUtilisateur(newUser2);
+			supprimerGroupe(newGroupe2);
+			supprimerUtilisateur(newUser2);
 			while (true)
 				;
 		} catch (IOException | ClassNotFoundException e) {
