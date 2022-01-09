@@ -175,6 +175,8 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 						}
 					}
 
+				}else {
+					zoneSaisie.setEnabled(false);
 				}
 			}
 		});
