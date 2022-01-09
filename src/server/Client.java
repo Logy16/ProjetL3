@@ -58,8 +58,6 @@ public class Client {
 		try {
 			Socket socket = new Socket("localhost", 7777);
 			Client client = new Client(socket);
-			
-
 			InterfaceConnexion interfaceConn = new InterfaceConnexion(client);
 			interfaceConn.setVisible(true);
 			// client.tests();
