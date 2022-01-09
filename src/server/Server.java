@@ -368,9 +368,6 @@ public class Server {
 			Message newMessage = new Message(dto.getMessage(), new Date(), dto.getEnvoyeur(), dto.getFil());
 			dto.getFil().addMessage(newMessage);
 			api.sendMessage(newMessage);
-			for (Utilisateur utilisateurFil : dto.getFil().getGroupe().getUtilisateurs()) {
-				api.hasSentMessage(newMessage, utilisateurFil);
-			}
 			api.hasReadMessage(newMessage, dto.getEnvoyeur());
 			return newMessage;
 		}

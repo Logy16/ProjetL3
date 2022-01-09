@@ -348,13 +348,8 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			stmt = connection.createStatement();
 			rst = stmt.executeQuery(
 					"SELECT * FROM Lectures WHERE l_u_id='" + toSQLString(u.getIdentifiant()) + "' AND l_m_id=" + idM);
-			if (rst.next()) {
-
-				sendResultlessRequest("UPDATE Lectures SET state='SENT' WHERE l_u_id='"
-						+ toSQLString(u.getIdentifiant()) + "' AND l_m_id=" + idM);
-			} else {
-				sendResultlessRequest("INSERT INTO Lectures (l_u_id, l_m_id, state) VALUES ('"
-						+ toSQLString(u.getIdentifiant()) + "', " + idM + ", 'SENT')");
+			if (!rst.next()) {
+				sendResultlessRequest("INSERT INTO Lectures (l_u_id, l_m_id, state) VALUES ('"+ toSQLString(u.getIdentifiant()) + "', " + idM + ", 'SENT')");
 			}
 			stmt.close();
 

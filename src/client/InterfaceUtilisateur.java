@@ -59,6 +59,12 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 	public InterfaceUtilisateur(Utilisateur connectedUser, Client c) {
 		super();
+		
+
+		
+		
+		
+		
 		this.setTitle("Interface Utilisateur");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.client = c;
@@ -72,17 +78,14 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		// Récupérer les groupes et les fils de discussion
 		try {
 			listgrp = this.client.getGroupes(connectedUser);
+			listeFil = new TreeSet<Fil>();
 			if (listgrp != null) {
 				for (Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
 					Groupe actualGroupe = iteGrp.next();
-					listeFil = client.getFils(actualGroupe);
-					if (listeFil != null) {
-						for (Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteFil.hasNext();) {
-							Fil actualFil = iteFil.next();
-							listeFil.add(actualFil);
-						}
-					} else {
-						listeFil = new TreeSet<Fil>();
+					listeFil.addAll(client.getFils(actualGroupe));
+					for (Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteFil.hasNext();) {
+						Fil actualFil = iteFil.next();
+						listeFil.add(actualFil);
 					}
 				}
 
@@ -122,6 +125,8 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
+				affichageMess.removeAll();
+				affichageMess.repaint();
 				DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode) listeTickets
 						.getLastSelectedPathComponent();
 				if (nodeSelected != null && nodeSelected.getChildCount() == 0) {
@@ -138,7 +143,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 					}
 
 					if (selectedFil != null) {
-						affichageMess.removeAll();
+						
 						try {
 							client.lireMessagesFil(selectedFil, connectedUser);
 						} catch (IOException e2) {
@@ -146,19 +151,17 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 						}
 						for (Iterator<Message> ite = selectedFil.getMessages().iterator(); ite.hasNext();) {
 							Message currentMess = ite.next();
-							JLabel labelMessage = new JLabel(
-									"<html>" + currentMess.getTexte() + "<br/>" + currentMess.getExpediteur().getNom()
-											+ ", " + currentMess.getDate() + "<br/><br/></html>");
+							JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" + currentMess.getExpediteur().getNom()+ ", " + currentMess.getDate() + "<br/><br/></html>");
 							try {
 								switch (client.getMessageStatus(currentMess)) {
 								case EN_ATTENTE:
 									labelMessage.setBackground(Color.RED);
 									break;
 								case LU:
-									labelMessage.setBackground(Color.ORANGE);
+									labelMessage.setBackground(Color.GREEN);
 									break;
 								case RECU:
-									labelMessage.setBackground(Color.GREEN);
+									labelMessage.setBackground(Color.ORANGE);
 									break;
 								default:
 									break;
@@ -168,6 +171,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 							}
 							labelMessage.setOpaque(true);
 							affichageMess.add(labelMessage);
+							affichageMess.repaint();
 						}
 					}
 
@@ -231,6 +235,15 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		this.setContentPane(contentPane);
 		this.setIconImage(new ImageIcon(getClass().getResource("/img/discussion.png")).getImage());
 		this.pack();
+		
+		Thread thread = new Thread() {
+			public void run(){
+			    while(true) {
+			    	
+			    }
+			}
+		};
+		thread.start();
 
 	}
 
@@ -244,9 +257,10 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
-
-				affichageMess.add(new JLabel("<html>" + currentMess.getTexte() + "<br/>"
-						+ currentMess.getExpediteur().getNom() + ", " + currentMess.getDate() + "<br/><br/></html>"));
+				JLabel jlabel = new JLabel("<html>" + currentMess.getTexte() + "<br/>"
+						+ currentMess.getExpediteur().getNom() + ", " + currentMess.getDate() + "<br/><br/></html>");
+				jlabel.setBackground(Color.RED);
+				affichageMess.add(jlabel);
 				zoneSaisie.setText("");
 			}
 		}
