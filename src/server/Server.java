@@ -274,6 +274,7 @@ public class Server {
 			return api.getUtilisateur(dto.getString());
 		}
 
+		@Override
 		public Set<Groupe> getGroupe() {
 			return api.getGroupes();
 		}
