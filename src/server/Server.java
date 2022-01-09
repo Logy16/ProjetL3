@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -278,10 +279,6 @@ public class Server {
 			}
 		}
 
-		public void hasSentMessage() {
-			api.hasSentMessage(null, null);
-		}
-
 		@Override
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
@@ -309,17 +306,31 @@ public class Server {
 
 		@Override
 		public Fil getFil(GetFilStringDto dto) {
-			return api.getFil(dto.getString());
+			Fil f = api.getFil(dto.getString());
+			for(Message m : f.getMessages()) {
+				api.hasSentMessage(m, dto.getUtilisateur());
+			}
+			return f;
 		}
 
 		@Override
 		public SortedSet<Fil> getFil(GetFilGroupeDto dto) {
-			return api.getFils(dto.getGroupe());
+			SortedSet<Fil> fils = api.getFils(dto.getGroupe());
+			for(Fil f : fils) {
+				for(Message m : f.getMessages()) {
+					api.hasSentMessage(m, dto.getUtilisateur());
+				}
+			}
+			return fils;
 		}
 
 		@Override
 		public Fil getFil(GetFilIntegerDto dto) {
-			return api.getFil(dto.getInteger());
+			Fil f = api.getFil(dto.getInteger());
+			for(Message m : f.getMessages()) {
+				api.hasSentMessage(m, dto.getUtilisateur());
+			}
+			return f;
 		}
 
 		public void closeEverything(Socket s, ObjectInputStream objectInputStream,
