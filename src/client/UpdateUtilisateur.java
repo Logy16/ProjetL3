@@ -266,6 +266,11 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());
+					String pwd = "";
+					for (char c : saisieMdp.getPassword()) {
+						pwd += c;
+					}
+					client.modifierPasswordUser(uti, pwd);
 					client.resetGroupeUser(uti);
 					for(Groupe grp : groupesChoisis) {
 						if(grp.equals(null))

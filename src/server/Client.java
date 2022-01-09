@@ -202,6 +202,13 @@ public class Client {
 		return (Utilisateur) objectInputStream.readObject();
 	}
 
+	public Utilisateur modifierPasswordUser(Utilisateur user, String newPass) throws IOException, ClassNotFoundException {
+		ModifyUserDto modifyPassword = new ModifyUserDto(newPass, user, TypeOperation.MODIFY_PASSWORD);
+		objectOutputStream.writeObject(modifyPassword);
+		return (Utilisateur) objectInputStream.readObject();
+	}
+	
+	
 	public Utilisateur modifierPrenomUser(Utilisateur user, String newName) throws IOException, ClassNotFoundException {
 		ModifyUserDto modifyName = new ModifyUserDto(newName, user, TypeOperation.MODIFY_FIRSTNAME);
 		objectOutputStream.writeObject(modifyName);

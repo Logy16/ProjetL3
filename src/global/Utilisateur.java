@@ -36,7 +36,9 @@ public abstract class Utilisateur implements Serializable, Comparable<Utilisateu
 	public String getPrenom() {
 		return prenom;
 	}
-
+	public void setPassword(String p) {
+		this.password = p;
+	}
 	public void setNom(String nom) {
 		this.nom = nom;
 	}

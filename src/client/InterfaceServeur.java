@@ -153,11 +153,10 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 				}
 			}
 
-			if (e.getSource() == buttDelete) {
+			if (e.getSource() == buttDelete && tableUtilisateur.getSelectedRow() != -1) {
 				for (Iterator<Utilisateur> ite = listUtilisateur.iterator(); ite.hasNext();) {
 					Utilisateur actualUti = ite.next();
-					if (actualUti.getNom()
-							.equals(tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString())) {
+					if (actualUti.getNom().equals(tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString())) {
 						ite.remove();
 						try {
 							client.supprimerUtilisateur(actualUti);
@@ -199,22 +198,23 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 			 */
 
 			if (e.getSource() == buttDelete) {
-				for (Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
-					Groupe actualGrp = ite.next();
-					if(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0) != null) {
-						if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
-							ite.remove();
-							try {
-								client.supprimerGroupe(actualGrp);
-							} catch (IOException e1) {
-								e1.printStackTrace();
+				if(tableGrp.getSelectedRow() != -1 && tableGrp.getValueAt(tableGrp.getSelectedRow(), 0) != null) {
+					for (Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
+						Groupe actualGrp = ite.next();
+						
+							if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
+								ite.remove();
+								try {
+									client.supprimerGroupe(actualGrp);
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+								modeleGrp.fireTableRowsDeleted(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
+								break;
 							}
-							modeleGrp.fireTableRowsDeleted(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
-							break;
-						}
-					}else {
-						JOptionPane.showMessageDialog(this, "Veuillez sélectionner une ligne");
 					}
+				} else {
+					JOptionPane.showMessageDialog(this, "Veuillez sélectionner une ligne");
 				}
 			}
 		}

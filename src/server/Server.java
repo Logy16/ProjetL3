@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -183,6 +184,11 @@ public class Server {
 						Utilisateur modifiedUserLastName = modifierNomUser(dtoMUL);
 						objectOutputStream.writeObject(modifiedUserLastName);
 						break;
+					case MODIFY_PASSWORD:
+						ModifyUserDto dtoMP = (ModifyUserDto) globalDto;
+						Utilisateur modifiedUserPass = modifierPasswordUser(dtoMP);
+						objectOutputStream.writeObject(modifiedUserPass);
+						break;
 					case DELETE_GROUPE:
 						DeleteGroupDto dtoDG = (DeleteGroupDto) globalDto;
 						supprimerGroupe(dtoDG);
@@ -278,10 +284,6 @@ public class Server {
 			}
 		}
 
-		public void hasSentMessage() {
-			api.hasSentMessage(null, null);
-		}
-
 		@Override
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
@@ -309,17 +311,31 @@ public class Server {
 
 		@Override
 		public Fil getFil(GetFilStringDto dto) {
-			return api.getFil(dto.getString());
+			Fil f = api.getFil(dto.getString());
+			for(Message m : f.getMessages()) {
+				api.hasSentMessage(m, dto.getUtilisateur());
+			}
+			return f;
 		}
 
 		@Override
 		public SortedSet<Fil> getFil(GetFilGroupeDto dto) {
-			return api.getFils(dto.getGroupe());
+			SortedSet<Fil> fils = api.getFils(dto.getGroupe());
+			for(Fil f : fils) {
+				for(Message m : f.getMessages()) {
+					api.hasSentMessage(m, dto.getUtilisateur());
+				}
+			}
+			return fils;
 		}
 
 		@Override
 		public Fil getFil(GetFilIntegerDto dto) {
-			return api.getFil(dto.getInteger());
+			Fil f = api.getFil(dto.getInteger());
+			for(Message m : f.getMessages()) {
+				api.hasSentMessage(m, dto.getUtilisateur());
+			}
+			return f;
 		}
 
 		public void closeEverything(Socket s, ObjectInputStream objectInputStream,
@@ -466,7 +482,14 @@ public class Server {
 			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
 			return u;
 		}
-
+		@Override
+		public Utilisateur modifierPasswordUser(ModifyUserDto dto) {
+			dto.getUser().setPassword(dto.getNewName());
+			api.setUtilisateur(dto.getUser());
+			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
+			return u;
+		}
+		
 		@Override
 		public void supprimerUtilisateur(DeleteUserDto dto) {
 			api.removeUtilisateur(dto.getUser());

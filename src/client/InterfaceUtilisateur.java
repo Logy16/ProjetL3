@@ -236,14 +236,6 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		this.setIconImage(new ImageIcon(getClass().getResource("/img/discussion.png")).getImage());
 		this.pack();
 		
-		Thread thread = new Thread() {
-			public void run(){
-			    while(true) {
-			    	
-			    }
-			}
-		};
-		thread.start();
 
 	}
 
@@ -252,15 +244,23 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		if (e.getSource() == buttonEnvoyer) {
 			if (!zoneSaisie.getText().isEmpty()) {
 				Message currentMess = new Message(zoneSaisie.getText(), new Date(), this.connectedUser, selectedFil);
+				JLabel jlabel = new JLabel("<html>" + currentMess.getTexte() + "<br/>"
+						+ currentMess.getExpediteur().getNom() + ", " + currentMess.getDate() + "<br/><br/></html>");
+				
+				
+				affichageMess.add(jlabel);
+				affichageMess.repaint();
 				try {
-					client.sendMessage(zoneSaisie.getText(), this.connectedUser, selectedFil);
+					currentMess = client.sendMessage(zoneSaisie.getText(), this.connectedUser, selectedFil);
+					jlabel.setOpaque(true);
+					jlabel.setBackground(Color.RED);
+					jlabel.repaint();
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
-				JLabel jlabel = new JLabel("<html>" + currentMess.getTexte() + "<br/>"
-						+ currentMess.getExpediteur().getNom() + ", " + currentMess.getDate() + "<br/><br/></html>");
-				jlabel.setBackground(Color.RED);
-				affichageMess.add(jlabel);
+				
+				
+				
 				zoneSaisie.setText("");
 			}
 		}
