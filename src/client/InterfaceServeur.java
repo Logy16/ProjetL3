@@ -147,7 +147,6 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 					e1.printStackTrace();
 				}
 				UpdateUtilisateur frameModif = new UpdateUtilisateur(this, user, client);
-
 				frameModif.setVisible(true);
 				frameModif.setModal(true);
 			}
@@ -200,15 +199,19 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 			if (e.getSource() == buttDelete) {
 				for (Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
 					Groupe actualGrp = ite.next();
-					if (actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
-						ite.remove();
-						try {
-							client.supprimerGroupe(actualGrp);
-						} catch (IOException e1) {
-							e1.printStackTrace();
+					if(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0) != null) {
+						if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
+							ite.remove();
+							try {
+								client.supprimerGroupe(actualGrp);
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+							modeleGrp.fireTableRowsDeleted(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
+							break;
 						}
-						modeleGrp.fireTableRowsDeleted(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
-						break;
+					}else {
+						JOptionPane.showMessageDialog(this, "Veuillez sélectionner une ligne");
 					}
 				}
 			}
