@@ -255,4 +255,12 @@ public interface IServer {
 	 * @author Liouss
 	 **/
 	public Set<Utilisateur> getUtilisateurs();
+	
+	/**
+	 * Permet de changer le mdp d'un utilisateur
+	 * 
+	 * @return Utilisateur modifié
+	 * @author Liouss
+	 **/
+	public Utilisateur modifierPasswordUser(ModifyUserDto dto);
 }

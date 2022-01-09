@@ -184,6 +184,11 @@ public class Server {
 						Utilisateur modifiedUserLastName = modifierNomUser(dtoMUL);
 						objectOutputStream.writeObject(modifiedUserLastName);
 						break;
+					case MODIFY_PASSWORD:
+						ModifyUserDto dtoMP = (ModifyUserDto) globalDto;
+						Utilisateur modifiedUserPass = modifierPasswordUser(dtoMP);
+						objectOutputStream.writeObject(modifiedUserPass);
+						break;
 					case DELETE_GROUPE:
 						DeleteGroupDto dtoDG = (DeleteGroupDto) globalDto;
 						supprimerGroupe(dtoDG);
@@ -477,7 +482,14 @@ public class Server {
 			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
 			return u;
 		}
-
+		@Override
+		public Utilisateur modifierPasswordUser(ModifyUserDto dto) {
+			dto.getUser().setPassword(dto.getNewName());
+			api.setUtilisateur(dto.getUser());
+			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
+			return u;
+		}
+		
 		@Override
 		public void supprimerUtilisateur(DeleteUserDto dto) {
 			api.removeUtilisateur(dto.getUser());
