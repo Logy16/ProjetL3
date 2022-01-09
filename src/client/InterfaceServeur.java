@@ -137,16 +137,16 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 				frameAjout.setModal(false);
 
 			}
-			
-			if(e.getSource()==buttModif) {
+
+			if (e.getSource() == buttModif) {
 				Utilisateur user = null;
 				try {
-					user = client.getUtilisateur(tableUtilisateur.getValueAt(
-							tableUtilisateur.getSelectedRow(), 2).toString());
+					user = client.getUtilisateur(
+							tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 2).toString());
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
-				UpdateUtilisateur frameModif = new UpdateUtilisateur(this, user, client);		
+				UpdateUtilisateur frameModif = new UpdateUtilisateur(this, user, client);
 
 				frameModif.setVisible(true);
 				frameModif.setModal(true);

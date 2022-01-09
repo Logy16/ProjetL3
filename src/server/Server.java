@@ -242,9 +242,7 @@ public class Server {
 							objectOutputStream.writeObject(utilisateursReturn);
 						} else {
 							throw new IllegalArgumentException("No users found in the database");
-
 						}
-						objectOutputStream.writeObject(utilisateursReturn);
 						break;
 					case GET_UTILISATEUR_STRING:
 						StringDto dtoGUS = (StringDto) globalDto;
