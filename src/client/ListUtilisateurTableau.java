@@ -23,7 +23,7 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 4;
+		return 5;
 	}
 
 	@Override
@@ -32,8 +32,9 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 		switch(columnIndex) {
 			case 0: return user.getNom();
 			case 1: return user.getPrenom();
-			case 2: return user. classToString();
-			case 3: return user.listGroupToString();
+			case 2: return user.getIdentifiant();
+			case 3: return user.classToString();
+			case 4: return user.listGroupToString();
 			default : return null;
 		}
 	}
@@ -43,8 +44,9 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 		switch(columnIndex) {
 			case 0: return "Nom";
 			case 1: return "Prénom";
-			case 2: return "Type";
-			case 3: return "Groupe";
+			case 2: return "Identifiant";
+			case 3: return "Type";
+			case 4: return "Groupe";
 			default: return null;
 		}
 	}

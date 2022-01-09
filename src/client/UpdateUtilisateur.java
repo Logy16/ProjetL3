@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,6 +19,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
@@ -35,6 +35,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 
 	private InterfaceServeur parent;
 	private Client client;
+	private Utilisateur userSelected;
 
 	private JLabel labelNom = new JLabel("Nom");
 	private JLabel labelPrenom = new JLabel("Prénom");
@@ -44,7 +45,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 	private JTextField saisieNom = new JTextField();
 	private JTextField saisiePrenom = new JTextField();
 	private JTextField saisieUsername = new JTextField();
-	private JTextField saisieMdp = new JTextField();
+	private JPasswordField saisieMdp = new JPasswordField();
 	private JLabel labelChoixType = new JLabel("Type d'utilisateur");
 	private JComboBox<String> choixType = new JComboBox<>();
 	private JLabel labelChoix = new JLabel("<html>Choix des groupes<br/></html>");
@@ -114,12 +115,13 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		this.pack();
 	}
 
-	public UpdateUtilisateur(InterfaceServeur parent, String nom, String prenom, Client c) {
+	public UpdateUtilisateur(InterfaceServeur parent, Utilisateur user, Client c) {
 		super();
 		this.setTitle("Interface Serveur");
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		this.parent = parent;
 		this.client = c;
+		this.userSelected = user;
 		
 		try {
 			this.listeGroupe = client.getGroupe();
@@ -130,9 +132,13 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
 		
-		saisieNom.setText(nom);
-		saisiePrenom.setText(prenom);
+		saisieNom.setText(user.getNom());
+		saisiePrenom.setText(user.getPrenom());
+		
+		saisieUsername.setText(user.getIdentifiant());
 		saisieUsername.setEnabled(false);
+		
+		saisieMdp.setText(user.getPassword());
 		saisieMdp.setEnabled(false);
 
 	// Créations des composants
@@ -185,7 +191,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==buttValiderAjout) {
-			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty() || saisieUsername.getText().isEmpty() || saisieMdp.getText().isEmpty())) {
+			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty() || saisieUsername.getText().isEmpty() || saisieMdp.getPassword().length == 0)) {
 				List<Groupe> groupesChoisis = new ArrayList<>();
 				int cpt = 0;
 				for(Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
@@ -198,13 +204,17 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 				List<Utilisateur> listUsers = this.parent.getListUser();
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
 				Utilisateur newUser = null;
+				String pwd = "";
+				for (char c : saisieMdp.getPassword()) {
+					pwd += c;
+				}
 				if(choixType.getSelectedItem().toString().equals("Agents")) {
 					newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), 
-							saisieUsername.getText(), saisieMdp.getText());
+							saisieUsername.getText(), pwd);
 					newUser.addGroups(groupesChoisis);
 					try {
 						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), 
-								saisieUsername.getText(), saisieMdp.getText());
+								saisieUsername.getText(), pwd);
 						for(Groupe grp : groupesChoisis) {
 							if(grp.equals(null))
 								break;
@@ -215,11 +225,11 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					}
 				}else {
 					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
-							saisieUsername.getText(), saisieMdp.getText());
+							saisieUsername.getText(), pwd);
 					newUser.addGroups(groupesChoisis);
 					try {
 						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
-								saisieUsername.getText(), saisieMdp.getText());
+								saisieUsername.getText(), pwd);
 						for(Groupe grp : groupesChoisis) {
 							if(grp.equals(null))
 								break;
@@ -239,17 +249,9 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		
 		if(e.getSource()==buttValiderModif) {
 			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty())) {
-				List<Utilisateur> listUsers = this.parent.getListUser();
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
 				JTable tableUtilisateur = this.parent.getTableUtilsateur();
-				String nameUserToModify = (String) modeletableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0);
-				Utilisateur uti = null;
-				for(Iterator<Utilisateur> ite = listUsers.iterator(); ite.hasNext();) {
-					uti = ite.next();
-					if(uti.getNom().equals(nameUserToModify)) {
-						break;
-					}
-				}
+				Utilisateur uti = userSelected;
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());
@@ -265,5 +267,4 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 			}
 		}
 	}
-
 }

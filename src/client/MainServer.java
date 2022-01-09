@@ -15,7 +15,6 @@ public class MainServer {
 			interfaceServeur = new InterfaceServeur(new Client(new Socket("localhost", 7777)));
 			interfaceServeur.setVisible(true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

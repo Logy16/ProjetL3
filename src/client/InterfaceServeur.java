@@ -141,11 +141,24 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 				frameAjout.setModal(false);
 
 			}
+<<<<<<< Updated upstream
 
 			if (e.getSource() == buttModif) {
 				UpdateUtilisateur frameModif = new UpdateUtilisateur(this,
 						tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString(),
 						tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 1).toString(), client);
+=======
+			
+			if(e.getSource()==buttModif) {
+				Utilisateur user = null;
+				try {
+					user = client.getUtilisateur(tableUtilisateur.getValueAt(
+							tableUtilisateur.getSelectedRow(), 2).toString());
+				} catch (ClassNotFoundException | IOException e1) {
+					e1.printStackTrace();
+				}
+				UpdateUtilisateur frameModif = new UpdateUtilisateur(this, user, client);		
+>>>>>>> Stashed changes
 				frameModif.setVisible(true);
 				frameModif.setModal(true);
 			}
