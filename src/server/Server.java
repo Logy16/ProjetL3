@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 
+import client.InterfaceServeur;
 import global.Agents;
 import global.Etat;
 import global.Fil;
@@ -68,6 +69,10 @@ public class Server {
 				System.out.println("Client attempting connection ...");
 				new ServerThread(socket, api);
 				System.out.println("Client connected!");
+				
+				InterfaceServeur interfaceServeur = new InterfaceServeur(new Client(new Socket("localhost", 7777)));
+				interfaceServeur.setVisible(true);
+				
 			} catch (NullPointerException | IOException e) {
 				e.printStackTrace();
 				System.out.println("Client failed connection ...");

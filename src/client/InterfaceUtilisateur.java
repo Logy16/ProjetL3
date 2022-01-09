@@ -1,7 +1,6 @@
 package client;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -9,7 +8,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -17,33 +15,25 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
-import global.Agents;
 import global.Fil;
 import global.Groupe;
 import global.Message;
 import global.Utilisateur;
-import global.UtilisateurCampus;
 import server.Client;
-import server.Server;
-import server.SimpleAPIServerSQL;
 
 public class InterfaceUtilisateur extends JFrame implements ActionListener {
 
@@ -58,8 +48,6 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	private JButton buttRefresh = new JButton("Rafraichir");
 	private JTextArea zoneSaisie;
 	private JComboBox<Groupe> listeGroupBox = new JComboBox<>();
-	private DefaultMutableTreeNode node;
-   	private Object nodeInfo;
 	
 	private Utilisateur connectedUser;
 	private Fil selectedFil = null;
@@ -123,9 +111,9 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
-				node = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
-		        if(node.getChildCount() == 0) {
-		        	nodeInfo = node.getUserObject();
+				DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
+		        if(nodeSelected.getChildCount() == 0) {
+		        	Object nodeInfo = nodeSelected.getUserObject();
 		        	affichageMess.removeAll();
 		        	
 			        nomTicket.setText(nodeInfo.toString());		
@@ -221,36 +209,28 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		if(e.getSource() == buttonEnvoyer) {
 			if(!zoneSaisie.getText().isEmpty()) {
 				Message currentMess = new Message(zoneSaisie.getText(), new Date(), this.connectedUser, selectedFil);
-				
-				/*Fil filSelected = null;
-				for(Fil fil : listeFil) {
-					if(fil.getSujet() == node.getUserObject()) {
-						filSelected = fil;
-					}
-				}
-				
 				try {
-					client.sendMessage(currentMess.getTexte(), test, filSelected);
-				}catch (ClassNotFoundException | IOException excep) {
-					System.out.println(excep);
-				}*/
+					client.sendMessage(zoneSaisie.getText(), this.connectedUser, selectedFil);
+				} catch (ClassNotFoundException | IOException e1) {
+					e1.printStackTrace();
+				}
 				
 				affichageMess.add(new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
 	        			+ currentMess.getExpediteur().getNom() + ", " 
 	        			+ currentMess.getDate() + "<br/><br/></html>"));
-				SwingUtilities.updateComponentTreeUI(this);
 				zoneSaisie.setText("");
 			}
 		}
 		
 		if(e.getSource() == buttnewSubject) {
-			/*AddFil newFil = new AddFil(this, this.connectedUser, listgrp, listeFil);
+			AddFil newFil = new AddFil(this, this.connectedUser, listgrp, listeFil);
 			newFil.setModal(true);	
-			newFil.setVisible(true);*/
+			newFil.setVisible(true);
 		}
 		
 		if(e.getSource() == buttRefresh) {
-			SwingUtilities.updateComponentTreeUI(this);
+			DefaultTreeModel model = (DefaultTreeModel) listeTickets.getModel();
+			model.reload();
 		}
 	}
 	
@@ -260,5 +240,14 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 	
 	public Client getClient() {
 		return this.client;
+	}
+	
+	public DefaultMutableTreeNode getSelectedNode() {
+		DefaultMutableTreeNode nodeSelect = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
+		if(nodeSelect.getChildCount()>0) {
+			return nodeSelect;
+		}else {
+			return (DefaultMutableTreeNode) nodeSelect.getParent();
+		}
 	}
 }

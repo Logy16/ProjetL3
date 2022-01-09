@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.SortedSet;
 
+import client.InterfaceConnexion;
 import global.Etat;
 import global.Fil;
 import global.Groupe;
@@ -57,7 +58,17 @@ public class Client {
 		try {
 			Socket socket = new Socket("localhost", 7777);
 			Client client = new Client(socket);
-			client.tests();
+			try {
+				Groupe newGroupe = client.createGroupe("TPA41");
+				Utilisateur newUser = client.addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo",
+						newGroupe);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			InterfaceConnexion interfaceConn = new InterfaceConnexion(client);
+			interfaceConn.setVisible(true);
+			// client.tests();
 			System.out.println("Connection info");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -87,8 +98,8 @@ public class Client {
 			System.out.println(getGroupe("TPA41").toString());
 			System.out.println(Arrays.toString(getGroupe("TPA41").getUtilisateurs()));
 			System.out.println(getGroupes(getUtilisateur("Pastorale")).toString());
-			supprimerGroupe(newGroupe2);
-			supprimerUtilisateur(newUser2);
+//			supprimerGroupe(newGroupe2);
+//			supprimerUtilisateur(newUser2);
 			while (true)
 				;
 		} catch (IOException | ClassNotFoundException e) {

@@ -5,7 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,9 +21,6 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.plaf.TableUI;
 import javax.swing.table.TableColumnModel;
 
 import global.Agents;
@@ -31,12 +28,13 @@ import global.Groupe;
 import global.Utilisateur;
 import global.UtilisateurCampus;
 import server.Client;
+import server.Server;
 
 public class InterfaceServeur extends JFrame implements ActionListener{
 
 	private static final long serialVersionUID = -2410156028365273198L;
 	
-	private Utilisateur connectedUser;
+	private Client client;
 	
 	private JButton buttAjouter = new JButton("Ajouter");
 	private JButton buttModif = new JButton("Modifier");
@@ -52,11 +50,11 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 	private List<Utilisateur> listUtilisateur = new ArrayList<>();
 	private List<Groupe> listGroupe = new ArrayList<>();
 
-	public InterfaceServeur(Utilisateur connectedUser, Client c) {
+	public InterfaceServeur(Client client) {
 		super();
 		this.setTitle("Interface Serveur");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.connectedUser = connectedUser;
+		this.client = client;
 		
 	// Créations des composants
 		// Créations des Panels
@@ -95,14 +93,14 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 		tableGrp.setRowHeight(50);
 		
 		TableColumnModel modeleColonneUti = tableUtilisateur.getColumnModel();
-		for (int i=0; i<4; i++) {
+		for (int i=0; i<3; i++) {
 			modeleColonneUti.getColumn(i).setPreferredWidth(150);
 			modeleColonneUti.getColumn(i).setCellRenderer(new RenduGroupeTableau());
 		}
 		
-		TableColumnModel modeleColonneGrp = tableGrp.getColumnModel();
+		/*TableColumnModel modeleColonneGrp = tableGrp.getColumnModel();
 		modeleColonneGrp.getColumn(0).setPreferredWidth(150);
-		modeleColonneGrp.getColumn(0).setCellRenderer(new RenduGroupeTableau());
+		modeleColonneGrp.getColumn(0).setCellRenderer(new RenduGroupeTableau());*/
 		
 		
 		// Paramétrages des composants
@@ -145,7 +143,7 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if(onglets.getTitleAt(onglets.getSelectedIndex()).equals("Utilisateurs")) {
 			if(e.getSource()==buttAjouter) {
-				UpdateUtilisateur frameAjout = new UpdateUtilisateur(this);
+				UpdateUtilisateur frameAjout = new UpdateUtilisateur(this, client);
 				frameAjout.setVisible(true);
 				frameAjout.setModal(false);
 				
@@ -153,7 +151,7 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 			
 			if(e.getSource()==buttModif) {
 				UpdateUtilisateur frameModif = new UpdateUtilisateur(this, tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString(),
-						tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 1).toString());		
+						tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 1).toString(), client);		
 				frameModif.setVisible(true);
 				frameModif.setModal(true);
 			}
@@ -163,7 +161,11 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 					Utilisateur actualUti = ite.next();
 					if(actualUti.getNom().equals(tableUtilisateur.getValueAt(tableUtilisateur.getSelectedRow(), 0).toString())) {
 						ite.remove();
-						//TODO : effacer en base
+						try {
+							client.supprimerUtilisateur(actualUti);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 						modeleUti.fireTableRowsDeleted(tableUtilisateur.getSelectedRow(), tableUtilisateur.getSelectedRow());
 						break;
 					}
@@ -175,8 +177,12 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 				if(!repNomGrp.isEmpty()) {
 					Groupe newGrp = new Groupe(repNomGrp);
 					listGroupe.add(newGrp);
+					try {
+						client.createGroupe(newGrp.getNom());
+					} catch (ClassNotFoundException | IOException e1) {
+						e1.printStackTrace();
+					}
 					modeleGrp.addRow(newGrp.getNom());
-					//TODO : Ajouter en base
 				}else {
 					JOptionPane.showMessageDialog(this, "Veuillez saisir quelque chose");
 				}
@@ -188,7 +194,7 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 					if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
 						String repNewNomGrp = JOptionPane.showInputDialog("Saisir le nom du groupe", actualGrp.getNom());
 						actualGrp.setNom(repNewNomGrp);
-						//TODO : Modifier en base
+						//client.
 						modeleGrp.fireTableRowsUpdated(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
 					}
 				}
@@ -199,7 +205,11 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 					Groupe actualGrp = ite.next();
 					if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
 						ite.remove();
-						//TODO : effacer en base
+						try {
+							client.supprimerGroupe(actualGrp);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 						modeleGrp.fireTableRowsDeleted(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
 						break;
 					}

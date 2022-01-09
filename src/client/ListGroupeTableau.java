@@ -2,7 +2,6 @@ package client;
 
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.table.AbstractTableModel;
 
 import global.Groupe;
