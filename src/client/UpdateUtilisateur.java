@@ -29,7 +29,7 @@ import global.Utilisateur;
 import global.UtilisateurCampus;
 import server.Client;
 
-public class UpdateUtilisateur extends JDialog implements ActionListener{
+public class UpdateUtilisateur extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 3720849060290140719L;
 
@@ -51,10 +51,10 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 	private JLabel labelChoix = new JLabel("<html>Choix des groupes<br/></html>");
 	private JButton buttValiderAjout = new JButton("Valider");
 	private JButton buttValiderModif = new JButton("Valider");
-	
+
 	private List<JCheckBox> choixgroupes = new ArrayList<>();
 	private Set<Groupe> listeGroupe;
-	
+
 	public UpdateUtilisateur(InterfaceServeur parent, Client c) {
 		super();
 		this.setTitle("Interface Serveur");
@@ -69,7 +69,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
 
-	// Créations des composants
+		// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel panelSaisieDonnees = new JPanel();
@@ -92,15 +92,15 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		panelSaisieDonnees.add(labelChoixType, 8);
 		panelSaisieDonnees.add(choixType, 9);
 		panelSaisieDonnees.add(labelChoix, 10);
-		
+
 		error.setForeground(Color.RED);
-		saisieNom.setPreferredSize(new Dimension(10,10));
+		saisieNom.setPreferredSize(new Dimension(10, 10));
 
 		panelGroupeCheckBox.setLayout(new GridLayout(listeGroupe.size(), 2, 10, 10));
-		for(Groupe grp : listeGroupe) {
+		for (Groupe grp : listeGroupe) {
 			choixgroupes.add(new JCheckBox(grp.getNom()));
 		}
-		for(int i=0; i<choixgroupes.size(); i++) {
+		for (int i = 0; i < choixgroupes.size(); i++) {
 			panelGroupeCheckBox.add(choixgroupes.get(i), i);
 		}
 
@@ -122,7 +122,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		this.parent = parent;
 		this.client = c;
 		this.userSelected = user;
-		
+
 		try {
 			this.listeGroupe = client.getGroupe();
 		} catch (ClassNotFoundException | IOException e) {
@@ -131,22 +131,21 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
-		
+
 		saisieNom.setText(user.getNom());
 		saisiePrenom.setText(user.getPrenom());
-		
+
 		saisieUsername.setText(user.getIdentifiant());
 		saisieUsername.setEnabled(false);
-		
+
 		saisieMdp.setText(user.getPassword());
 
-	// Créations des composants
+		// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
 		JPanel panelSaisieDonnees = new JPanel();
 		JPanel panelGroupeCheckBox = new JPanel();
 		JPanel panelValidation = new JPanel();
-
 
 		contentPane.setLayout(new BorderLayout());
 		contentPane.add(panelSaisieDonnees, BorderLayout.CENTER);
@@ -164,15 +163,15 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		panelSaisieDonnees.add(labelChoixType, 8);
 		panelSaisieDonnees.add(choixType, 9);
 		panelSaisieDonnees.add(labelChoix, 10);
-		
+
 		error.setForeground(Color.RED);
-		saisieNom.setPreferredSize(new Dimension(10,10));
+		saisieNom.setPreferredSize(new Dimension(10, 10));
 
 		panelGroupeCheckBox.setLayout(new GridLayout(listeGroupe.size(), 2, 10, 10));
-		for(Groupe grp : listeGroupe) {
+		for (Groupe grp : listeGroupe) {
 			choixgroupes.add(new JCheckBox(grp.getNom()));
 		}
-		for(int i=0; i<choixgroupes.size(); i++) {
+		for (int i = 0; i < choixgroupes.size(); i++) {
 			panelGroupeCheckBox.add(choixgroupes.get(i), i);
 		}
 
@@ -189,108 +188,100 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==buttValiderAjout) {
-			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty() || saisieUsername.getText().isEmpty() || saisieMdp.getPassword().length == 0)) {
+		if (e.getSource() == buttValiderAjout) {
+			if (!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty()
+					|| saisieUsername.getText().isEmpty() || saisieMdp.getPassword().length == 0)) {
 				List<Groupe> groupesChoisis = new ArrayList<>();
 				int cpt = 0;
-				for(Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
+				for (Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
 					Groupe groupe = iteGrp.next();
-					if(choixgroupes.get(cpt).isSelected()) {
+					if (choixgroupes.get(cpt).isSelected()) {
 						groupesChoisis.add(groupe);
 					}
 					cpt++;
 				}
 				List<Utilisateur> listUsers = this.parent.getListUser();
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
-				
+
 				String pwd = "";
 				for (char c : saisieMdp.getPassword()) {
 					pwd += c;
 				}
-				
+
 				Utilisateur newUser = null;
-				if(choixType.getSelectedItem().toString().equals("Agents")) {
+				if (choixType.getSelectedItem().toString().equals("Agents")) {
 					newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
 				} else {
-					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
+					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(),
+							saisieUsername.getText(), pwd);
 				}
-				
+
 				listeGroupe.clear();
 				listeGroupe.addAll(groupesChoisis);
-				
+
 				try {
-					if(choixType.getSelectedItem().toString().equals("Agents")) {
+					if (choixType.getSelectedItem().toString().equals("Agents")) {
 						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
 					} else {
-						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
+						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(),
+								saisieUsername.getText(), pwd);
 					}
 					client.resetGroupeUser(newUser);
-					for(Groupe grp : groupesChoisis) {
-						if(!grp.equals(null)) {
+					for (Groupe grp : groupesChoisis) {
+						if (!grp.equals(null)) {
 							client.addUserToGroupe(newUser, grp);
 						}
-					}	
+					}
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
-				
+
 				listUsers.add(newUser);
 				modeletableUtilisateur.addRow(newUser.getNom());
 				this.dispose();
-			}else {
+			} else {
 				JOptionPane.showMessageDialog(this, "Les informations ne doivent pas être vident");
 			}
 		}
-		
-		if(e.getSource()==buttValiderModif) {
-			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty())) {
+
+		if (e.getSource() == buttValiderModif) {
+			if (!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty())) {
 				List<Groupe> groupesChoisis = new ArrayList<>();
 				int cpt = 0;
-				for(Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
+				for (Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
 					Groupe groupe = iteGrp.next();
-					if(choixgroupes.get(cpt).isSelected()) {
+					if (choixgroupes.get(cpt).isSelected()) {
 						groupesChoisis.add(groupe);
 					}
 					cpt++;
 				}
 				List<Utilisateur> listUsers = this.parent.getListUser();
-<<<<<<< HEAD
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
 				JTable tableUtilisateur = this.parent.getTableUtilsateur();
 				Utilisateur uti = null;
-				for(Utilisateur u : listUsers) {
-					if(u.equals(userSelected)) {
+				for (Utilisateur u : listUsers) {
+					if (u.equals(userSelected)) {
 						uti = u;
 					}
-				}	
-=======
-                ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
-                JTable tableUtilisateur = this.parent.getTableUtilsateur();
-                Utilisateur uti = null;
-                for(Utilisateur u : listUsers) {
-                    if(u.equals(userSelected)) {
-                        uti = u;
-                    }
-                }    
-                
->>>>>>> 076e0f36a141d4b58f1030aa0c0bbf9f3ca64eec
+				}
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());
 					client.resetGroupeUser(uti);
-					for(Groupe grp : groupesChoisis) {
-						if(grp.equals(null))
+					for (Groupe grp : groupesChoisis) {
+						if (grp.equals(null))
 							break;
 						client.addUserToGroupe(uti, grp);
-					}		
+					}
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
 				uti.setNom(saisieNom.getText());
 				uti.setPrenom(saisiePrenom.getText());
-				modeletableUtilisateur.fireTableRowsUpdated(tableUtilisateur.getSelectedRow(), tableUtilisateur.getSelectedRow());
+				modeletableUtilisateur.fireTableRowsUpdated(tableUtilisateur.getSelectedRow(),
+						tableUtilisateur.getSelectedRow());
 				this.dispose();
-			}else {
+			} else {
 				JOptionPane.showMessageDialog(this, "Les informations ne doivent pas être vident");
 			}
 		}

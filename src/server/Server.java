@@ -475,13 +475,11 @@ public class Server {
 			api.removeGroupe(dto.getGroupe());
 			dto.getGroupe().removeUtilisateurs(dto.getGroupe().getUtilisateurs());
 		}
-		
+
 		public void resetGroupes(Utilisateur u) {
 			api.setGroupes(u, new ArrayList<Groupe>());
-		
+
 		}
-		
-		
 
 	}
 }
