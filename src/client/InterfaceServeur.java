@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -23,12 +24,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 
-import global.Agents;
 import global.Groupe;
 import global.Utilisateur;
-import global.UtilisateurCampus;
 import server.Client;
-import server.Server;
 
 public class InterfaceServeur extends JFrame implements ActionListener{
 
@@ -62,24 +60,20 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 		JPanel bas = new JPanel();
 		
 		//Récupérer la liste des utilisateurs
-		
-		//Test Local a supprimer
-			Groupe grp1 = new Groupe("TDDDD");
-			Groupe grp2 = new Groupe("TTTTTD");
-			Utilisateur test = new Agents("TEST1", "testeur1", "test3", "mdptest");
-			Utilisateur test2 = new Agents("TEST2", "testeu2r", "test3", "mdptest");
-			Utilisateur test3 = new UtilisateurCampus("TEST3", "testeu3r", "test2", "mdptest");
-			Utilisateur test4 = new Agents("TEST4", "testeu4r", "test3", "mdptest");
-			Utilisateur test5 = new Agents("TEST5", "testeu5r", "test3", "mdptest");
-			grp1.addUtilisateurs(test2,test4);
-			grp2.addUtilisateurs(test,test4);
-			listUtilisateur.add(test);
-			listUtilisateur.add(test2);
-			listUtilisateur.add(test3);
-			listUtilisateur.add(test4);
-			listUtilisateur.add(test5);
-			listGroupe.add(grp1);
-			listGroupe.add(grp2);
+		Set<Groupe> listGroupeBD = null;
+		Set<Utilisateur> listUtiBDFromGrp = null;
+		try {
+			listGroupeBD = client.getGroupe();
+		} catch (ClassNotFoundException | IOException e1) {
+			e1.printStackTrace();
+		}
+		for(Groupe grp : listGroupeBD) {
+			listGroupe.add(grp);
+			listUtiBDFromGrp = grp.getUtilisateursSet();
+			for(Utilisateur uti : listUtiBDFromGrp) {
+				listUtilisateur.add(uti);
+			}
+		}
 		
 		//On génère les tableaux d'utilisateurs et de groupes
 		modeleUti = new ListUtilisateurTableau(listUtilisateur);

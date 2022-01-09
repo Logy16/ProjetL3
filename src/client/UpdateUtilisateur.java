@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -46,11 +48,11 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 	private JLabel labelChoixType = new JLabel("Type d'utilisateur");
 	private JComboBox<String> choixType = new JComboBox<>();
 	private JLabel labelChoix = new JLabel("<html>Choix des groupes<br/></html>");
-	private List<JCheckBox> choixgroupes = new ArrayList<>();
 	private JButton buttValiderAjout = new JButton("Valider");
 	private JButton buttValiderModif = new JButton("Valider");
 	
-	private List<Groupe> listeGroupe = new ArrayList<>();
+	private List<JCheckBox> choixgroupes = new ArrayList<>();
+	private Set<Groupe> listeGroupe;
 	
 	public UpdateUtilisateur(InterfaceServeur parent, Client c) {
 		super();
@@ -58,7 +60,11 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		this.parent = parent;
 		this.client = c;
-
+		try {
+			this.listeGroupe = client.getGroupe();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
 
@@ -114,9 +120,20 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		this.parent = parent;
 		this.client = c;
+		
+		try {
+			this.listeGroupe = client.getGroupe();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
 
 		choixType.addItem("Utilisateur Campus");
 		choixType.addItem("Agents");
+		
+		saisieNom.setText(nom);
+		saisiePrenom.setText(prenom);
+		saisieUsername.setEnabled(false);
+		saisieMdp.setEnabled(false);
 
 	// Créations des composants
 		// Créations des Panels
@@ -155,11 +172,11 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		}
 
 		panelValidation.setLayout(new BorderLayout(0, 20));
-		panelValidation.add(buttValiderAjout, BorderLayout.SOUTH);
+		panelValidation.add(buttValiderModif, BorderLayout.SOUTH);
 		panelValidation.add(error, BorderLayout.CENTER);
 		panelValidation.add(panelGroupeCheckBox, BorderLayout.NORTH);
 
-		buttValiderAjout.addActionListener(this);
+		buttValiderModif.addActionListener(this);
 
 		this.setContentPane(contentPane);
 		this.pack();
@@ -171,9 +188,10 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty() || saisieUsername.getText().isEmpty() || saisieMdp.getText().isEmpty())) {
 				List<Groupe> groupesChoisis = new ArrayList<>();
 				int cpt = 0;
-				for(int i = 0; i<listeGroupe.size(); i++) {
-					if(choixgroupes.get(i).isSelected()) {
-						groupesChoisis.add(listeGroupe.get(i));
+				for(Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
+					Groupe groupe = iteGrp.next();
+					if(choixgroupes.get(cpt).isSelected()) {
+						groupesChoisis.add(groupe);
 						cpt++;
 					}
 				}
