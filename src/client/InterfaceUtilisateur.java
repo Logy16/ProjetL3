@@ -72,37 +72,47 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		//Récupérer les groupes et les fils de discussion
 		try {
 			listgrp = this.client.getGroupes(connectedUser);
-			for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
-				Groupe actualGroupe = iteGrp.next();
-				for(Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteGrp.hasNext();) {
-					Fil actualFil = iteFil.next();
-					listeFil.add(actualFil);
-				}	
+			if(listgrp != null) {
+				for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
+					Groupe actualGroupe = iteGrp.next();
+					if(listeFil != null) {
+						for(Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteGrp.hasNext();) {
+							Fil actualFil = iteFil.next();
+							listeFil.add(actualFil);
+						}	
+						
+					}
+				}
+				
+				for(Groupe grp : listgrp) {
+					listeGroupBox.addItem(grp);
+				}
+					
+				//Création de l'arbre
+				DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Racine");
+				for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
+					Groupe actualGroupe = iteGrp.next();
+					DefaultMutableTreeNode noeud = new DefaultMutableTreeNode(actualGroupe.getNom());
+					listNoeud.add(noeud);
+					racine.add(noeud);
+					if(listeFil != null) {
+						for(Iterator<Fil> iteFil = listeFil.iterator(); iteFil.hasNext();) {
+							Fil actualFil = iteFil.next();
+							if(actualFil.getGroupe().equals(actualGroupe)) {
+								DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(actualFil.getSujet());
+								noeud.add(feuille);
+							}
+						}	
+					}
+				}
+				
+				listeTickets = new JTree(racine);
+				
 			}
 		} catch (ClassNotFoundException | IOException e1) {
 			e1.printStackTrace();
 		}
 		
-		for(Groupe grp : listgrp) {
-			listeGroupBox.addItem(grp);
-		}
-			
-		//Création de l'arbre
-		DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Racine");
-		for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
-			Groupe actualGroupe = iteGrp.next();
-			DefaultMutableTreeNode noeud = new DefaultMutableTreeNode(actualGroupe.getNom());
-			listNoeud.add(noeud);
-			racine.add(noeud);
-			for(Iterator<Fil> iteFil = listeFil.iterator(); iteFil.hasNext();) {
-				Fil actualFil = iteFil.next();
-				if(actualFil.getGroupe().equals(actualGroupe)) {
-					DefaultMutableTreeNode feuille = new DefaultMutableTreeNode(actualFil.getSujet());
-					noeud.add(feuille);
-				}
-			}		
-		}
-		listeTickets = new JTree(racine);
 		listeTickets.setRootVisible(false);
 		listeTickets.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createLoweredBevelBorder(),

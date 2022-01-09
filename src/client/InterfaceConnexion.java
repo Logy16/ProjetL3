@@ -30,39 +30,6 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 	private JPasswordField saisieMdp = new JPasswordField();
 	private JButton buttConnexion = new JButton("Connexion");
 
-	public InterfaceConnexion() {
-		super();
-		this.setTitle("Connexion");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.client = client;
-
-		// Créations des composants
-		// Créations des Panels
-		JPanel contentPane = new JPanel();
-		JPanel panelConnexion = new JPanel();
-		JPanel panelValidation = new JPanel();
-
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(panelConnexion, BorderLayout.CENTER);
-		contentPane.add(panelValidation, BorderLayout.SOUTH);
-
-		panelConnexion.setLayout(new GridLayout(2, 2, 10, 10));
-		panelConnexion.add(labelUsername, 0);
-		panelConnexion.add(saisieUsername, 1);
-		panelConnexion.add(labelMdp, 2);
-		panelConnexion.add(saisieMdp, 3);
-		error.setForeground(Color.RED);
-
-		panelValidation.setLayout(new BorderLayout(0, 20));
-		panelValidation.add(buttConnexion, BorderLayout.CENTER);
-		panelValidation.add(error, BorderLayout.NORTH);
-
-		buttConnexion.addActionListener(this);
-
-		this.setContentPane(contentPane);
-		this.pack();
-	}
-
 	public InterfaceConnexion(Client client) {
 		super();
 		this.setTitle("Connexion");

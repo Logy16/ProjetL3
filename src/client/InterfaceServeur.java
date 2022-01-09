@@ -182,17 +182,17 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 				}
 			}
 			
-			if(e.getSource()==buttModif) {
+			/*if(e.getSource()==buttModif) {
 				for(Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
 					Groupe actualGrp = ite.next();
 					if(actualGrp.getNom().equals(tableGrp.getValueAt(tableGrp.getSelectedRow(), 0).toString())) {
 						String repNewNomGrp = JOptionPane.showInputDialog("Saisir le nom du groupe", actualGrp.getNom());
 						actualGrp.setNom(repNewNomGrp);
-						//client.
+						client.
 						modeleGrp.fireTableRowsUpdated(tableGrp.getSelectedRow(), tableGrp.getSelectedRow());
 					}
 				}
-			}
+			}*/
 			
 			if(e.getSource()==buttDelete) {
 				for(Iterator<Groupe> ite = listGroupe.iterator(); ite.hasNext();) {
@@ -210,7 +210,6 @@ public class InterfaceServeur extends JFrame implements ActionListener{
 				}
 			}
 		}
-		
 	}
 	
 	public ListUtilisateurTableau getModeleTableUtilsateur() {
