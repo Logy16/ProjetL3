@@ -99,7 +99,10 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rst = stmt.executeQuery("SELECT * FROM Utilisateurs");
-			returned.add(createUtilisateurFromResultSet(rst));
+			while(!rst.isAfterLast()) {
+				returned.add(createUtilisateurFromResultSet(rst));
+			}
+			
 			stmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -266,8 +269,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 		Set<Groupe> returned = new HashSet<Groupe>();
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rst = stmt.executeQuery(
-					"SELECT * FROM LinkUtilisateurGroupe WHERE lug_u_id='" + toSQLString(u.getIdentifiant()) + "'");
+			ResultSet rst = stmt.executeQuery("SELECT * FROM LinkUtilisateurGroupe WHERE lug_u_id='" + toSQLString(u.getIdentifiant()) + "'");
 			while (rst.next()) {
 				returned.add(getGroupe(rst.getString("lug_g_id")));
 			}
