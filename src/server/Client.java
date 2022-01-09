@@ -33,7 +33,6 @@ import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 import global.dto.StringDto;
 import global.dto.UtilisateurDto;
-import global.dto.UtilisateursDto;
 
 public class Client {
 	private Socket socket;
@@ -129,10 +128,10 @@ public class Client {
 		objectOutputStream.writeObject(getUtilisateur);
 		return (Utilisateur) objectInputStream.readObject();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Set<Utilisateur> getUtilisateurs() throws IOException, ClassNotFoundException {
-		UtilisateursDto getUtilisateurs = new UtilisateursDto(null);
+		SimpleDto getUtilisateurs = new SimpleDto(TypeOperation.GET_UTILISATEURS);
 		objectOutputStream.writeObject(getUtilisateurs);
 		return (Set<Utilisateur>) objectInputStream.readObject();
 	}

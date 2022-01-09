@@ -10,11 +10,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 
-import client.InterfaceServeur;
 import global.Agents;
 import global.Etat;
 import global.Fil;
@@ -240,6 +238,12 @@ public class Server {
 						break;
 					case GET_UTILISATEURS:
 						Set<Utilisateur> utilisateursReturn = getUtilisateurs();
+						if (utilisateursReturn != null) {
+							objectOutputStream.writeObject(utilisateursReturn);
+						} else {
+							throw new IllegalArgumentException("No users found in the database");
+
+						}
 						objectOutputStream.writeObject(utilisateursReturn);
 						break;
 					case GET_UTILISATEUR_STRING:
@@ -274,7 +278,7 @@ public class Server {
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
 		}
-		
+
 		@Override
 		public Set<Utilisateur> getUtilisateurs() {
 			return api.getUtilisateurs();
@@ -377,8 +381,8 @@ public class Server {
 
 		@Override
 		public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
-			for(Utilisateur u : groupe.getUtilisateurs()) {
-				if(u.getIdentifiant().equals(user.getIdentifiant())) {
+			for (Utilisateur u : groupe.getUtilisateurs()) {
+				if (u.getIdentifiant().equals(user.getIdentifiant())) {
 					return true;
 				}
 			}
@@ -412,7 +416,8 @@ public class Server {
 		@Override
 		public Utilisateur addUtilisateurCampus(AddUserDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUserCampus = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword());
+			Utilisateur newUserCampus = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(),
+					dto.getPassword());
 			for (Groupe groupeLink : dto.getGroupes()) {
 				if (groupeLink.getUtilisateursSet().contains(newUserCampus)) {
 					ajoute = true;
