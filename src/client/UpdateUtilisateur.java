@@ -250,12 +250,19 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					Groupe groupe = iteGrp.next();
 					if(choixgroupes.get(cpt).isSelected()) {
 						groupesChoisis.add(groupe);
-						cpt++;
 					}
+					cpt++;
 				}
-				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
-				JTable tableUtilisateur = this.parent.getTableUtilsateur();
-				Utilisateur uti = userSelected;
+				List<Utilisateur> listUsers = this.parent.getListUser();
+                ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
+                JTable tableUtilisateur = this.parent.getTableUtilsateur();
+                Utilisateur uti = null;
+                for(Utilisateur u : listUsers) {
+                    if(u.equals(userSelected)) {
+                        uti = u;
+                    }
+                }    
+                
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());

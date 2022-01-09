@@ -161,7 +161,6 @@ public class Client {
 		objectOutputStream.writeObject(fil);
 		// OBJET RECU PAR LE SERVEUR
 		GlobalDto globalDto = (GlobalDto) objectInputStream.readObject();
-		System.out.println(globalDto.getOperation());
 		switch (globalDto.getOperation()) {
 		case CONNEXION_REUSSIE:
 			return true;
