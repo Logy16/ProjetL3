@@ -68,19 +68,18 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		JPanel contentPane = new JPanel();
 		JPanel gauche = new JPanel();
 		JPanel bouton = new JPanel();
-		
 		//Récupérer les groupes et les fils de discussion
 		try {
 			listgrp = this.client.getGroupes(connectedUser);
 			if(listgrp != null) {
 				for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
 					Groupe actualGroupe = iteGrp.next();
+					
 					if(listeFil != null) {
 						for(Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteGrp.hasNext();) {
 							Fil actualFil = iteFil.next();
 							listeFil.add(actualFil);
-						}	
-						
+						}		
 					}
 				}
 				
@@ -126,6 +125,12 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		        	Object nodeInfo = nodeSelected.getUserObject();
 		        	affichageMess.removeAll();
 		        	
+		        	try {
+						client.lireMessagesFil(selectedFil, connectedUser);
+					} catch (IOException e2) {
+						e2.printStackTrace();
+					}
+		        	
 			        nomTicket.setText(nodeInfo.toString());		
 			        txtSaisie.setText("Envoyer un message dans : <<" + nodeInfo + ">>");
 			        
@@ -140,12 +145,16 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			        	JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
 			        			+ currentMess.getExpediteur().getNom() + ", " 
 			        			+ currentMess.getDate() + "<br/><br/></html>");
-			        	switch(currentMess.getEtat()) {
-			        		case EN_ATTENTE: labelMessage.setBackground(Color.RED);break;
-			        		case LU: labelMessage.setBackground(Color.ORANGE);break;
-			        		case RECU: labelMessage.setBackground(Color.GREEN);break;
-			        		default:break;
-			        	}
+			        	try {
+							switch(client.getMessageStatus(currentMess)) {
+								case EN_ATTENTE: labelMessage.setBackground(Color.RED);break;
+								case LU: labelMessage.setBackground(Color.ORANGE);break;
+								case RECU: labelMessage.setBackground(Color.GREEN);break;
+								default: break;
+							}
+						} catch (ClassNotFoundException | IOException e1) {
+							e1.printStackTrace();
+						}
 			        	labelMessage.setOpaque(true);
 			        	affichageMess.add(labelMessage);
 			        }

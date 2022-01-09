@@ -261,9 +261,15 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 						cpt++;
 					}
 				}
+				List<Utilisateur> listUsers = this.parent.getListUser();
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
 				JTable tableUtilisateur = this.parent.getTableUtilsateur();
-				Utilisateur uti = userSelected;
+				Utilisateur uti = null;
+				for(Utilisateur u : listUsers) {
+					if(u.equals(userSelected)) {
+						uti = u;
+					}
+				}	
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());
@@ -272,8 +278,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 						if(grp.equals(null))
 							break;
 						client.addUserToGroupe(uti, grp);
-					}	
-					
+					}		
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
