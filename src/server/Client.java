@@ -58,14 +58,6 @@ public class Client {
 		try {
 			Socket socket = new Socket("localhost", 7777);
 			Client client = new Client(socket);
-			try {
-				Groupe newGroupe = client.createGroupe("TPA41");
-				Utilisateur newUser = client.addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo",
-						newGroupe);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-
 			InterfaceConnexion interfaceConn = new InterfaceConnexion(client);
 			interfaceConn.setVisible(true);
 			// client.tests();
