@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -74,12 +75,14 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			if(listgrp != null) {
 				for(Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
 					Groupe actualGroupe = iteGrp.next();
-					
+					listeFil = client.getFils(actualGroupe);
 					if(listeFil != null) {
-						for(Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteGrp.hasNext();) {
+						for(Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteFil.hasNext();) {
 							Fil actualFil = iteFil.next();
 							listeFil.add(actualFil);
 						}		
+					} else {
+						listeFil = new TreeSet<Fil>();
 					}
 				}
 				
@@ -121,7 +124,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode) listeTickets.getLastSelectedPathComponent();
-		        if(nodeSelected.getChildCount() == 0) {
+		        if(nodeSelected != null && nodeSelected.getChildCount() == 0) {
 		        	Object nodeInfo = nodeSelected.getUserObject();
 		        	affichageMess.removeAll();
 		        	
@@ -133,31 +136,35 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 		        	
 			        nomTicket.setText(nodeInfo.toString());		
 			        txtSaisie.setText("Envoyer un message dans : <<" + nodeInfo + ">>");
-			        
-			        for(Fil sameFil : listeFil) {
-			        	if(sameFil.getSujet().equals(nodeInfo)) {
-			        		 selectedFil = sameFil;
-			        	}
+			        if(listeFil != null) {
+			        	for(Fil sameFil : listeFil) {
+				        	if(sameFil.getSujet().equals(nodeInfo)) {
+				        		 selectedFil = sameFil;
+				        	}
+				        }
 			        }
-			        
-			        for(Iterator<Message> ite = selectedFil.getMessages().iterator(); ite.hasNext();) {
-			        	Message currentMess = ite.next();
-			        	JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
-			        			+ currentMess.getExpediteur().getNom() + ", " 
-			        			+ currentMess.getDate() + "<br/><br/></html>");
-			        	try {
-							switch(client.getMessageStatus(currentMess)) {
-								case EN_ATTENTE: labelMessage.setBackground(Color.RED);break;
-								case LU: labelMessage.setBackground(Color.ORANGE);break;
-								case RECU: labelMessage.setBackground(Color.GREEN);break;
-								default: break;
+
+			        if(selectedFil != null) {
+			        	for(Iterator<Message> ite = selectedFil.getMessages().iterator(); ite.hasNext();) {
+				        	Message currentMess = ite.next();
+				        	JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" 
+				        			+ currentMess.getExpediteur().getNom() + ", " 
+				        			+ currentMess.getDate() + "<br/><br/></html>");
+				        	try {
+								switch(client.getMessageStatus(currentMess)) {
+									case EN_ATTENTE: labelMessage.setBackground(Color.RED);break;
+									case LU: labelMessage.setBackground(Color.ORANGE);break;
+									case RECU: labelMessage.setBackground(Color.GREEN);break;
+									default:break;
+								}
+							} catch (ClassNotFoundException | IOException e1) {
+								e1.printStackTrace();
 							}
-						} catch (ClassNotFoundException | IOException e1) {
-							e1.printStackTrace();
-						}
-			        	labelMessage.setOpaque(true);
-			        	affichageMess.add(labelMessage);
+				        	labelMessage.setOpaque(true);
+				        	affichageMess.add(labelMessage);
+				        }
 			        }
+			        
 		        }  		
 			}
 		});

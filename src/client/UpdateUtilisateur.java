@@ -197,51 +197,43 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					Groupe groupe = iteGrp.next();
 					if(choixgroupes.get(cpt).isSelected()) {
 						groupesChoisis.add(groupe);
-						cpt++;
 					}
+					cpt++;
 				}
 				List<Utilisateur> listUsers = this.parent.getListUser();
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
-				Utilisateur newUser = null;
+				
 				String pwd = "";
 				for (char c : saisieMdp.getPassword()) {
 					pwd += c;
 				}
+				
+				Utilisateur newUser = null;
 				if(choixType.getSelectedItem().toString().equals("Agents")) {
-					newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), 
-							saisieUsername.getText(), pwd);
-					listeGroupe.clear();
-					listeGroupe.addAll(groupesChoisis);
-					try {
-						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), 
-								saisieUsername.getText(), pwd);
-						client.resetGroupeUser(newUser);
-						for(Groupe grp : groupesChoisis) {
-							if(grp.equals(null))
-								break;
-							client.addUserToGroupe(newUser, grp);
-						}	
-					} catch (ClassNotFoundException | IOException e1) {
-						e1.printStackTrace();
-					}
-				}else {
-					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
-							saisieUsername.getText(), pwd);
-					listeGroupe.clear();
-					listeGroupe.addAll(groupesChoisis);
-					try {
-						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
-								saisieUsername.getText(), pwd);
-						client.resetGroupeUser(newUser);
-						for(Groupe grp : groupesChoisis) {
-							if(grp.equals(null))
-								break;
-							client.addUserToGroupe(newUser, grp);
-						}	
-					} catch (ClassNotFoundException | IOException e1) {
-						e1.printStackTrace();
-					}
+					newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
+				} else {
+					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
 				}
+				
+				listeGroupe.clear();
+				listeGroupe.addAll(groupesChoisis);
+				
+				try {
+					if(choixType.getSelectedItem().toString().equals("Agents")) {
+						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
+					} else {
+						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), saisieUsername.getText(), pwd);
+					}
+					client.resetGroupeUser(newUser);
+					for(Groupe grp : groupesChoisis) {
+						if(!grp.equals(null)) {
+							client.addUserToGroupe(newUser, grp);
+						}
+					}	
+				} catch (ClassNotFoundException | IOException e1) {
+					e1.printStackTrace();
+				}
+				
 				listUsers.add(newUser);
 				modeletableUtilisateur.addRow(newUser.getNom());
 				this.dispose();
@@ -258,10 +250,11 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					Groupe groupe = iteGrp.next();
 					if(choixgroupes.get(cpt).isSelected()) {
 						groupesChoisis.add(groupe);
-						cpt++;
 					}
+					cpt++;
 				}
 				List<Utilisateur> listUsers = this.parent.getListUser();
+<<<<<<< HEAD
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
 				JTable tableUtilisateur = this.parent.getTableUtilsateur();
 				Utilisateur uti = null;
@@ -270,6 +263,17 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 						uti = u;
 					}
 				}	
+=======
+                ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
+                JTable tableUtilisateur = this.parent.getTableUtilsateur();
+                Utilisateur uti = null;
+                for(Utilisateur u : listUsers) {
+                    if(u.equals(userSelected)) {
+                        uti = u;
+                    }
+                }    
+                
+>>>>>>> 076e0f36a141d4b58f1030aa0c0bbf9f3ca64eec
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());

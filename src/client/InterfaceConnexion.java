@@ -77,13 +77,16 @@ public class InterfaceConnexion extends JFrame implements ActionListener {
 				try {
 					if (client.demandeConnexion(saisieUsername.getText(), pwd)) {
 						connectedUser = client.getUtilisateur(saisieUsername.getText());
+						InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
+						iUtilisateur.setVisible(true);
+						this.dispose();
+					} else {
+						error.setText("Identifiant ou mot de passe invalide");
 					}
 				} catch (IOException | ClassNotFoundException e1) {
 					e1.printStackTrace();
 				}
-				InterfaceUtilisateur iUtilisateur = new InterfaceUtilisateur(connectedUser, client);
-				iUtilisateur.setVisible(true);
-				this.dispose();
+
 			}
 		}
 	}
