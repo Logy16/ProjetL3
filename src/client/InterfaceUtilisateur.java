@@ -151,7 +151,7 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 						}
 						for (Iterator<Message> ite = selectedFil.getMessages().iterator(); ite.hasNext();) {
 							Message currentMess = ite.next();
-							JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" + currentMess.getExpediteur().getNom()+ ", " + currentMess.getDate() + "<br/><br/></html>");
+							JLabel labelMessage = new JLabel("<html>" + currentMess.getTexte() + "<br/>" + currentMess.getExpediteur().getNom() + " " + currentMess.getExpediteur().getPrenom()+ ", " + currentMess.getDate() + "<br/><br/></html>");
 							try {
 								switch (client.getMessageStatus(currentMess)) {
 								case EN_ATTENTE:
@@ -175,7 +175,8 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 						}
 					}
 
-				}else {
+				}
+				if(nodeSelected.getChildCount() != 0) {
 					zoneSaisie.setEnabled(false);
 				}
 			}
