@@ -118,6 +118,14 @@ public interface APIServerSQL {
 	 * @author Liouss
 	 **/
 	public Set<Groupe> getGroupesFromUser(Utilisateur utilisateur);
+	
+	/**
+	 * Permet d'obtenir les groupes
+	 * 
+	 * @return le groupes trouvés, null si rien trouvé
+	 * @author Liouss
+	 **/
+	public Set<Groupe> getGroupes();
 
 	/**
 	 * Permet d'ajouter un groupe à la base de données. ATTENTION : NE MET PAS A

@@ -290,6 +290,23 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 		}
 		return returned;
 	}
+	
+	@Override
+	public Set<Groupe> getGroupes() {
+		Set<Groupe> returned = new HashSet<Groupe>();
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rst = stmt.executeQuery(
+					"SELECT * FROM LinkUtilisateurGroupe");
+			while (rst.next()) {
+				returned.add(getGroupe(rst.getString("lug_g_id")));
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return returned;
+	}
 
 	@Override
 	public boolean createGroupe(Groupe groupe) {
