@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -29,6 +28,7 @@ import global.dto.GroupeDto;
 import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
+import global.dto.ResetGroupFromUserDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 import global.dto.StringDto;
@@ -63,38 +63,6 @@ public class Client {
 			// client.tests();
 			System.out.println("Connection info");
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void tests() {
-		try {
-			Groupe newGroupe = createGroupe("TPA41");
-			Utilisateur newUser2 = addUtilisateurCampus("DI SCALA", "Jules", "Liouss", "testmdpjules", newGroupe);
-			Utilisateur newUser = addUtilisateurCampus("BOUILLON", "Nemo", "Pastorale", "testmdpnemo", newGroupe);
-			if (demandeConnexion("Pastorale", "testmdpnemo")) {
-				Fil newFil = demandeCreationFil("Nouveau fil", newUser, newGroupe, "Ceci est un nouveau fil");
-				Message newMessage = sendMessage("MessageTest", newUser, newFil);
-				System.out.println(getMessageStatus(newMessage));
-				lireMessagesFil(newFil, newUser2);
-				System.out.println(getMessageStatus(newMessage));
-			}
-			Groupe newGroupe2 = createGroupe("Projet");
-			addUserToGroupe(newUser, newGroupe2);
-			Utilisateur modified1 = modifierNomUser(newUser2, "DI SCALA2");
-			System.out.println("modification de DI SCALA en " + modified1.getNom());
-			Utilisateur modified2 = modifierPrenomUser(modified1, "cursedJules");
-			System.out.println("modification de Jules en " + modified2.getPrenom());
-			System.out.println(getFil("Nouveau fil").toString());
-			System.out.println(getFils(newGroupe).toString());
-			System.out.println(getGroupe("TPA41").toString());
-			System.out.println(Arrays.toString(getGroupe("TPA41").getUtilisateurs()));
-			System.out.println(getGroupes(getUtilisateur("Pastorale")).toString());
-//			supprimerGroupe(newGroupe2);
-//			supprimerUtilisateur(newUser2);
-			while (true)
-				;
-		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
@@ -254,5 +222,10 @@ public class Client {
 	public void supprimerGroupe(Groupe g) throws IOException {
 		DeleteGroupDto deleteGroup = new DeleteGroupDto(g);
 		objectOutputStream.writeObject(deleteGroup);
+	}
+	
+	public void resetGroupeUser(Utilisateur u) throws IOException {
+		ResetGroupFromUserDto resetDto = new ResetGroupFromUserDto(u);
+		objectOutputStream.writeObject(resetDto);
 	}
 }

@@ -101,8 +101,10 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 			ResultSet rst = stmt.executeQuery("SELECT * FROM Utilisateurs");
 			returned.add(createUtilisateurFromResultSet(rst));
 			stmt.close();
-		} catch (SQLException | UserNotFoundException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (UserNotFoundException e) {
+			
 		}
 		return returned;
 	}

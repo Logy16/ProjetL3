@@ -139,7 +139,6 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		saisieUsername.setEnabled(false);
 		
 		saisieMdp.setText(user.getPassword());
-		saisieMdp.setEnabled(false);
 
 	// Créations des composants
 		// Créations des Panels
@@ -216,6 +215,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					try {
 						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), 
 								saisieUsername.getText(), pwd);
+						client.resetGroupeUser(newUser);
 						for(Groupe grp : groupesChoisis) {
 							if(grp.equals(null))
 								break;
@@ -232,6 +232,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					try {
 						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
 								saisieUsername.getText(), pwd);
+						client.resetGroupeUser(newUser);
 						for(Groupe grp : groupesChoisis) {
 							if(grp.equals(null))
 								break;
@@ -251,12 +252,28 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 		
 		if(e.getSource()==buttValiderModif) {
 			if(!(saisieNom.getText().isEmpty() || saisiePrenom.getText().isEmpty())) {
+				List<Groupe> groupesChoisis = new ArrayList<>();
+				int cpt = 0;
+				for(Iterator<Groupe> iteGrp = listeGroupe.iterator(); iteGrp.hasNext();) {
+					Groupe groupe = iteGrp.next();
+					if(choixgroupes.get(cpt).isSelected()) {
+						groupesChoisis.add(groupe);
+						cpt++;
+					}
+				}
 				ListUtilisateurTableau modeletableUtilisateur = this.parent.getModeleTableUtilsateur();
 				JTable tableUtilisateur = this.parent.getTableUtilsateur();
 				Utilisateur uti = userSelected;
 				try {
 					client.modifierNomUser(uti, saisieNom.getText());
 					client.modifierPrenomUser(uti, saisiePrenom.getText());
+					client.resetGroupeUser(uti);
+					for(Groupe grp : groupesChoisis) {
+						if(grp.equals(null))
+							break;
+						client.addUserToGroupe(uti, grp);
+					}	
+					
 				} catch (ClassNotFoundException | IOException e1) {
 					e1.printStackTrace();
 				}
