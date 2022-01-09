@@ -19,3 +19,6 @@
 /StringDto.class
 /UtilisateurDto.class
 /UtilisateursDto.class
+/GetFilGroupeDto.class
+/GetFilIntegerDto.class
+/GetFilStringDto.class
