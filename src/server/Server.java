@@ -70,9 +70,6 @@ public class Server {
 				new ServerThread(socket, api);
 				System.out.println("Client connected!");
 
-				InterfaceServeur interfaceServeur = new InterfaceServeur(new Client(new Socket("localhost", 7777)));
-				interfaceServeur.setVisible(true);
-
 			} catch (NullPointerException | IOException e) {
 				e.printStackTrace();
 				System.out.println("Client failed connection ...");
