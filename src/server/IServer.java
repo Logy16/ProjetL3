@@ -18,9 +18,10 @@ import global.dto.CreerGroupeDto;
 import global.dto.DeleteGroupDto;
 import global.dto.DeleteUserDto;
 import global.dto.DemandeDeConnexionDto;
+import global.dto.GetFilGroupeDto;
+import global.dto.GetFilIntegerDto;
+import global.dto.GetFilStringDto;
 import global.dto.GetMessageStateDto;
-import global.dto.GroupeDto;
-import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
 import global.dto.SendMessageDto;
@@ -221,34 +222,35 @@ public interface IServer {
 	 * Permet d'obtenir un fil à partir de son nom
 	 * 
 	 * @param dto : Data transfer object contenant le nom du fil que l'on souhaite
-	 *            obtenir
+	 *            obtenir ainsi qu'un utilisateur
 	 * @return le fil lié au nom
 	 * @author Nemo
 	 **/
-	public Fil getFil(StringDto dto);
+	public Fil getFil(GetFilStringDto dto);
 
 	/**
 	 * Permet d'obtenir l'ensemble des fils liés à un groupe
 	 * 
 	 * @param dto : Data transfer object contenant le groupe dont on souhaite
-	 *            obtenir les fils
+	 *            obtenir les fils ainsi qu'un utilisateur
 	 * @return l'ensemble des fils liés au groupe
 	 * @author Nemo
 	 **/
-	public SortedSet<Fil> getFil(GroupeDto dto);
+	public SortedSet<Fil> getFil(GetFilGroupeDto dto);
 
 	/**
 	 * Permet d'obtenir un fil à partir de son identifiant
 	 * 
 	 * @param dto : Data transfer object contenant l'identifiant du fil que l'on
-	 *            souhaite obtenir
+	 *            souhaite obtenir ainsi qu'un utilisateur
 	 * @return le fil lié à l'identifiant
 	 * @author Nemo
 	 **/
-	public Fil getFil(IntegerDto dto);
-	
+	public Fil getFil(GetFilIntegerDto dto);
+
 	/**
 	 * Permet d'obtenir tous les utilisateurs
+	 * 
 	 * @return set de tous les utilisateurs
 	 * @author Liouss
 	 **/

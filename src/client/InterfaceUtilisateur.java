@@ -82,8 +82,8 @@ public class InterfaceUtilisateur extends JFrame implements ActionListener {
 			if (listgrp != null) {
 				for (Iterator<Groupe> iteGrp = listgrp.iterator(); iteGrp.hasNext();) {
 					Groupe actualGroupe = iteGrp.next();
-					listeFil.addAll(client.getFils(actualGroupe));
-					for (Iterator<Fil> iteFil = this.client.getFils(actualGroupe).iterator(); iteFil.hasNext();) {
+					listeFil.addAll(client.getFils(connectedUser, actualGroupe));
+					for (Iterator<Fil> iteFil = this.client.getFils(connectedUser, actualGroupe).iterator(); iteFil.hasNext();) {
 						Fil actualFil = iteFil.next();
 						listeFil.add(actualFil);
 					}
