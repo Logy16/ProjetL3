@@ -28,11 +28,12 @@ import global.dto.CreerGroupeDto;
 import global.dto.DeleteGroupDto;
 import global.dto.DeleteUserDto;
 import global.dto.DemandeDeConnexionDto;
+import global.dto.GetFilGroupeDto;
+import global.dto.GetFilIntegerDto;
+import global.dto.GetFilStringDto;
 import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
-import global.dto.GroupeDto;
-import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
 import global.dto.ResetGroupFromUserDto;
@@ -195,7 +196,7 @@ public class Server {
 						supprimerUtilisateur(dtoDU);
 						break;
 					case GET_FIL_GROUPE:
-						GroupeDto dtoGFG = (GroupeDto) globalDto;
+						GetFilGroupeDto dtoGFG = (GetFilGroupeDto) globalDto;
 						SortedSet<Fil> groupeFilReturn = getFil(dtoGFG);
 						if (groupeFilReturn != null) {
 							objectOutputStream.writeObject(groupeFilReturn);
@@ -205,7 +206,7 @@ public class Server {
 						}
 						break;
 					case GET_FIL_INT:
-						IntegerDto dtoGFI = (IntegerDto) globalDto;
+						GetFilIntegerDto dtoGFI = (GetFilIntegerDto) globalDto;
 						Fil intFilReturn = getFil(dtoGFI);
 						if (intFilReturn != null) {
 							objectOutputStream.writeObject(intFilReturn);
@@ -214,7 +215,7 @@ public class Server {
 						}
 						break;
 					case GET_FIL_STRING:
-						StringDto dtoGFS = (StringDto) globalDto;
+						GetFilStringDto dtoGFS = (GetFilStringDto) globalDto;
 						Fil stringFilReturn = getFil(dtoGFS);
 						if (stringFilReturn != null) {
 							objectOutputStream.writeObject(stringFilReturn);
@@ -277,6 +278,10 @@ public class Server {
 			}
 		}
 
+		public void hasSentMessage() {
+			api.hasSentMessage(null, null);
+		}
+
 		@Override
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
@@ -303,17 +308,17 @@ public class Server {
 		}
 
 		@Override
-		public Fil getFil(StringDto dto) {
+		public Fil getFil(GetFilStringDto dto) {
 			return api.getFil(dto.getString());
 		}
 
 		@Override
-		public SortedSet<Fil> getFil(GroupeDto dto) {
+		public SortedSet<Fil> getFil(GetFilGroupeDto dto) {
 			return api.getFils(dto.getGroupe());
 		}
 
 		@Override
-		public Fil getFil(IntegerDto dto) {
+		public Fil getFil(GetFilIntegerDto dto) {
 			return api.getFil(dto.getInteger());
 		}
 

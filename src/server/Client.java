@@ -21,11 +21,12 @@ import global.dto.CreerGroupeDto;
 import global.dto.DeleteGroupDto;
 import global.dto.DeleteUserDto;
 import global.dto.DemandeDeConnexionDto;
+import global.dto.GetFilGroupeDto;
+import global.dto.GetFilIntegerDto;
+import global.dto.GetFilStringDto;
 import global.dto.GetMessageStateDto;
 import global.dto.GlobalDto;
 import global.dto.GlobalDto.TypeOperation;
-import global.dto.GroupeDto;
-import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
 import global.dto.ResetGroupFromUserDto;
@@ -116,21 +117,21 @@ public class Client {
 		return (Groupe) objectInputStream.readObject();
 	}
 
-	public Fil getFil(int id) throws IOException, ClassNotFoundException {
-		IntegerDto getFil = new IntegerDto(TypeOperation.GET_FIL_INT, id);
+	public Fil getFil(Utilisateur utilisateur, int id) throws IOException, ClassNotFoundException {
+		GetFilIntegerDto getFil = new GetFilIntegerDto(TypeOperation.GET_FIL_INT, id, utilisateur);
 		objectOutputStream.writeObject(getFil);
 		return (Fil) objectInputStream.readObject();
 	}
 
 	@SuppressWarnings("unchecked")
-	public SortedSet<Fil> getFils(Groupe groupe) throws IOException, ClassNotFoundException {
-		GroupeDto getFils = new GroupeDto(TypeOperation.GET_FIL_GROUPE, groupe);
+	public SortedSet<Fil> getFils(Utilisateur utilisateur, Groupe groupe) throws IOException, ClassNotFoundException {
+		GetFilGroupeDto getFils = new GetFilGroupeDto(TypeOperation.GET_FIL_GROUPE, utilisateur, groupe);
 		objectOutputStream.writeObject(getFils);
 		return (SortedSet<Fil>) objectInputStream.readObject();
 	}
 
-	public Fil getFil(String titre) throws IOException, ClassNotFoundException {
-		StringDto getFil = new StringDto(TypeOperation.GET_FIL_STRING, titre);
+	public Fil getFil(Utilisateur utilisateur, String titre) throws IOException, ClassNotFoundException {
+		GetFilStringDto getFil = new GetFilStringDto(TypeOperation.GET_FIL_STRING, utilisateur, titre);
 		objectOutputStream.writeObject(getFil);
 		return (Fil) objectInputStream.readObject();
 	}
@@ -222,7 +223,7 @@ public class Client {
 		DeleteGroupDto deleteGroup = new DeleteGroupDto(g);
 		objectOutputStream.writeObject(deleteGroup);
 	}
-	
+
 	public void resetGroupeUser(Utilisateur u) throws IOException {
 		ResetGroupFromUserDto resetDto = new ResetGroupFromUserDto(u);
 		objectOutputStream.writeObject(resetDto);
