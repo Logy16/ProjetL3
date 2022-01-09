@@ -69,10 +69,10 @@ public class Server {
 				System.out.println("Client attempting connection ...");
 				new ServerThread(socket, api);
 				System.out.println("Client connected!");
-				
+
 				InterfaceServeur interfaceServeur = new InterfaceServeur(new Client(new Socket("localhost", 7777)));
 				interfaceServeur.setVisible(true);
-				
+
 			} catch (NullPointerException | IOException e) {
 				e.printStackTrace();
 				System.out.println("Client failed connection ...");
@@ -250,6 +250,14 @@ public class Server {
 							throw new IllegalArgumentException("No user binded to this value: " + dtoGUS.getString());
 						}
 						break;
+					case GET_GROUPE:
+						Set<Groupe> groupeReturn = getGroupe();
+						if (groupeReturn != null) {
+							objectOutputStream.writeObject(groupeReturn);
+						} else {
+							throw new IllegalArgumentException("No groups found in the database");
+						}
+						break;
 					default:
 						break;
 					}
@@ -264,6 +272,10 @@ public class Server {
 		@Override
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
+		}
+
+		public Set<Groupe> getGroupe() {
+			return api.getGroupes();
 		}
 
 		@Override

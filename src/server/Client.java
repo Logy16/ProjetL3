@@ -130,6 +130,13 @@ public class Client {
 	}
 
 	@SuppressWarnings("unchecked")
+	public Set<Groupe> getGroupe() throws IOException, ClassNotFoundException {
+		SimpleDto getGroupe = new SimpleDto(TypeOperation.GET_GROUPE);
+		objectOutputStream.writeObject(getGroupe);
+		return (Set<Groupe>) objectInputStream.readObject();
+	}
+
+	@SuppressWarnings("unchecked")
 	public Set<Groupe> getGroupes(Utilisateur utilisateur) throws IOException, ClassNotFoundException {
 		UtilisateurDto getGroupes = new UtilisateurDto(TypeOperation.GET_GROUPE_UTILISATEUR, utilisateur);
 		objectOutputStream.writeObject(getGroupes);

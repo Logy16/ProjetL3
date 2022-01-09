@@ -200,6 +200,14 @@ public interface IServer {
 	public Set<Groupe> getGroupe(UtilisateurDto dto);
 
 	/**
+	 * Permet d'obtenir l'ensemble des groupes de la base de donnée
+	 * 
+	 * @return l'ensemble des groupes contenus dans la base de donnée
+	 * @author Nemo
+	 **/
+	public Set<Groupe> getGroupe();
+
+	/**
 	 * Permet d'obtenir un groupe à partir de son nom
 	 * 
 	 * @param dto : Data transfer object contenant le nom du groupe que l'on
