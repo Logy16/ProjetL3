@@ -53,7 +53,6 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 		this.setTitle("Interface Serveur");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.client = client;
-		System.out.println(client);
 		// Créations des composants
 		// Créations des Panels
 		JPanel contentPane = new JPanel();
