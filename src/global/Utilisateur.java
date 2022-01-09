@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public abstract class Utilisateur implements Serializable {
+public abstract class Utilisateur implements Serializable, Comparable<Utilisateur>{
 	private static final long serialVersionUID = -5647550023167220838L;
 
 	protected String nom;
@@ -72,5 +72,11 @@ public abstract class Utilisateur implements Serializable {
 			return false;
 		}
 		return ((Utilisateur) o).identifiant.equals(identifiant);
+	}
+	
+	@Override
+	public int compareTo(Utilisateur u) {
+		return getIdentifiant().compareTo(u.getIdentifiant());
+		
 	}
 }
