@@ -1,19 +1,22 @@
 package client;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import global.Utilisateur;
+import server.Client;
 
 public class ListUtilisateurTableau extends AbstractTableModel {
 
 	private static final long serialVersionUID = -5435173877337469288L;
 	
 	List<Utilisateur> listUti;
-	
-	public ListUtilisateurTableau(List<Utilisateur> listUti) {
+	Client client;
+	public ListUtilisateurTableau(List<Utilisateur> listUti, Client c) {
 		this.listUti = listUti;
+		client = c;
 	}
 
 	@Override
@@ -34,8 +37,14 @@ public class ListUtilisateurTableau extends AbstractTableModel {
 			case 1: return user.getPrenom();
 			case 2: return user.getIdentifiant();
 			case 3: return user.classToString();
-			case 4: return user.listGroupToString();
-			default : return null;
+			case 4: try {
+				return client.getGroupes(user);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			default : return "Aucun groupe";
 		}
 	}
 	

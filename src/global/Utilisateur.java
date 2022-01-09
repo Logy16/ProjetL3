@@ -12,7 +12,6 @@ public abstract class Utilisateur implements Serializable {
 
 	protected String nom;
 	protected String prenom;
-	protected SortedSet<Groupe> groupes = new TreeSet<>();
 	protected String identifiant;
 	protected String password;
 
@@ -24,24 +23,11 @@ public abstract class Utilisateur implements Serializable {
 	 * @param password    : mot de passe de l'utilisateur
 	 * @param gs          : la liste des groupes de l'utilisateur (vararg)
 	 **/
-	public Utilisateur(String nom, String prenom, String identifiant, String password, Groupe... gs) {
+	public Utilisateur(String nom, String prenom, String identifiant, String password) {
 		this.nom = nom;
 		this.prenom = prenom;
 		this.identifiant = identifiant;
 		this.password = password;
-		for (Groupe g : gs) {
-			g.addUtilisateurs(this);
-		}
-	}
-	public void addGroups(Groupe... gs) {
-		for (Groupe g : gs) {
-			g.addUtilisateurs(this);
-		}
-	}
-	public void addGroups(Collection<Groupe> gs) {
-		for (Groupe g : gs) {
-			g.addUtilisateurs(this);
-		}
 	}
 	public String getNom() {
 		return nom;
@@ -59,14 +45,6 @@ public abstract class Utilisateur implements Serializable {
 		this.prenom = prenom;
 	}
 
-	/**
-	 * Toujours préférer utiliser groupe.ajouterUtilisateurs ou
-	 * groupe.removeUtilisateurs pour modifier
-	 **/
-	public Set<Groupe> getGroupes() {
-		return groupes;
-	}
-
 	public String getIdentifiant() {
 		return identifiant;
 	}
@@ -81,20 +59,6 @@ public abstract class Utilisateur implements Serializable {
 		}
 		else
 			return "Utilisateur campus";
-	}
-	
-	public String listGroupToString() {
-		String chaine = "";
-		String separateur = ", ";
-		for(Iterator<Groupe> ite = this.groupes.iterator(); ite.hasNext();) {
-			Groupe grp = ite.next();
-			if(ite.hasNext()) {
-				chaine += grp.getNom() + separateur;
-			}else {
-				chaine += grp.getNom();
-			}
-		}
-		return chaine;
 	}
 
 	@Override

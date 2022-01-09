@@ -9,8 +9,8 @@ public class UtilisateurCampus extends Utilisateur {
 	 * @param id       : l'id
 	 * @param password : le mot de passe en clair
 	 **/
-	public UtilisateurCampus(String nom, String prenom, String id, String password, Groupe... gs) {
-		super(nom, prenom, id, password, gs);
+	public UtilisateurCampus(String nom, String prenom, String id, String password) {
+		super(nom, prenom, id, password);
 	}
 
 	@Override

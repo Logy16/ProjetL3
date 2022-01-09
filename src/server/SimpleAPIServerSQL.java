@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
@@ -120,7 +121,19 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 		}
 		return returned;
 	}
-
+	@Override
+	public Set<Utilisateur> getUtilisateurs(){
+		Set<Utilisateur> returned = new TreeSet<>();
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rst = stmt.executeQuery("SELECT * FROM Utilisateurs");
+			returned.add(createUtilisateurFromResultSet(rst));
+			stmt.close();
+		} catch (SQLException | UserNotFoundException e) {
+			e.printStackTrace();
+		}
+		return returned;
+	}
 	@Override
 	public Utilisateur getUtilisateur(String identifiant) {
 		Utilisateur returned = null;
@@ -141,8 +154,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 		if (utilisateur instanceof UtilisateurCampus) {
 			type = UTILISATEUR_TEXT;
 		}
-		sendResultlessRequest("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"
-				+ toSQLString(utilisateur.getIdentifiant()) + "'");
+		
 
 		Utilisateur u = getUtilisateur(utilisateur.getIdentifiant());
 		if (u != null) {
@@ -151,20 +163,12 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 					+ toSQLString(utilisateur.getPrenom()) + "', nom='" + toSQLString(utilisateur.getNom())
 					+ "', password='" + toSQLString(utilisateur.getPassword()) + "', type='" + toSQLString(type)
 					+ "' WHERE id='" + toSQLString(utilisateur.getIdentifiant()) + "'");
-			for (Groupe g : utilisateur.getGroupes()) {
-				sendResultlessRequest("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
-						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(g.getNom()) + "')");
-			}
 			return true;
 		} else {
 			sendResultlessRequest("INSERT INTO Utilisateurs (id, prenom, nom, password, type) VALUES ('"
 					+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(utilisateur.getPrenom())
 					+ "', '" + toSQLString(utilisateur.getNom()) + "', '" + toSQLString(utilisateur.getPassword())
 					+ "', '" + toSQLString(type) + "')");
-			for (Groupe g : utilisateur.getGroupes()) {
-				sendResultlessRequest("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
-						+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(g.getNom()) + "')");
-			}
 			return false;
 		}
 
@@ -250,7 +254,15 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 				+ "')");
 		return true;
 	}
-
+	@Override
+	public void setGroupes(Utilisateur utilisateur, List<Groupe> grs) {
+		sendResultlessRequest("DELETE FROM LinkUtilisateurGroupe WHERE lug_u_id = '"
+				+ toSQLString(utilisateur.getIdentifiant()) + "'");
+		for (Groupe g : grs) {
+			sendResultlessRequest("INSERT INTO LinkUtilisateurGroupe (lug_u_id, lug_g_id) VALUES ('"
+					+ toSQLString(utilisateur.getIdentifiant()) + "', '" + toSQLString(g.getNom()) + "')");
+		}
+	}
 	@Override
 	public Groupe getGroupe(String nom) {
 		Groupe groupe = null;
@@ -275,7 +287,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 	}
 
 	@Override
-	public Set<Groupe> getGroupesFromUser(Utilisateur u) {
+	public Set<Groupe> getGroupes(Utilisateur u) {
 		Set<Groupe> returned = new HashSet<Groupe>();
 		try {
 			Statement stmt = connection.createStatement();
@@ -297,9 +309,9 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rst = stmt.executeQuery(
-					"SELECT * FROM LinkUtilisateurGroupe");
+					"SELECT nomG FROM Groupes");
 			while (rst.next()) {
-				returned.add(getGroupe(rst.getString("lug_g_id")));
+				returned.add(getGroupe(rst.getString("nomG")));
 			}
 			stmt.close();
 		} catch (SQLException e) {
@@ -494,5 +506,7 @@ public class SimpleAPIServerSQL implements APIServerSQL {
 	public void removeGroupe(Groupe groupe) {
 		sendResultlessRequest("DELETE FROM Groupes WHERE nomG = '" + toSQLString(groupe.getNom()) + "'");
 	}
+
+
 
 }

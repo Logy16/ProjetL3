@@ -211,7 +211,8 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 				if(choixType.getSelectedItem().toString().equals("Agents")) {
 					newUser = new Agents(saisieNom.getText(), saisiePrenom.getText(), 
 							saisieUsername.getText(), pwd);
-					newUser.addGroups(groupesChoisis);
+					listeGroupe.clear();
+					listeGroupe.addAll(groupesChoisis);
 					try {
 						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), 
 								saisieUsername.getText(), pwd);
@@ -226,7 +227,8 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 				}else {
 					newUser = new UtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
 							saisieUsername.getText(), pwd);
-					newUser.addGroups(groupesChoisis);
+					listeGroupe.clear();
+					listeGroupe.addAll(groupesChoisis);
 					try {
 						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
 								saisieUsername.getText(), pwd);

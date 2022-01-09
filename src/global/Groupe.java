@@ -44,17 +44,11 @@ public class Groupe implements Comparable<Groupe>, Serializable {
 	public void addUtilisateurs(Utilisateur... utilisateurs) {
 		List<Utilisateur> utilisateurs2 = Arrays.asList(utilisateurs);
 		this.utilisateurs.addAll(utilisateurs2);
-		utilisateurs2.stream().forEach(user -> {
-			user.getGroupes().add(this);
-		});
 	}
 
 	public void removeUtilisateurs(Utilisateur... utilisateurs) {
 		List<Utilisateur> utilisateurs2 = Arrays.asList(utilisateurs);
 		this.utilisateurs.removeAll(utilisateurs2);
-		utilisateurs2.stream().forEach(user -> {
-			user.getGroupes().remove(this);
-		});
 	}
 
 	@Override

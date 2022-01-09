@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
@@ -237,11 +238,14 @@ public class Server {
 									"No groupe binded to this value: " + dtoGGU.getUtilisateur());
 						}
 						break;
+					case GET_UTILISATEURS:
+						Set<Utilisateur> utilisateursReturn = getUtilisateurs();
+						objectOutputStream.writeObject(utilisateursReturn);
+						break;
 					case GET_UTILISATEUR_STRING:
 						StringDto dtoGUS = (StringDto) globalDto;
 						Utilisateur utilisateurReturn = getUtilisateur(dtoGUS);
 						if (utilisateurReturn != null) {
-							utilisateurReturn.addGroups(api.getGroupesFromUser(utilisateurReturn));
 							objectOutputStream.writeObject(utilisateurReturn);
 						} else {
 							throw new IllegalArgumentException("No user binded to this value: " + dtoGUS.getString());
@@ -270,6 +274,11 @@ public class Server {
 		public Utilisateur getUtilisateur(StringDto dto) {
 			return api.getUtilisateur(dto.getString());
 		}
+		
+		@Override
+		public Set<Utilisateur> getUtilisateurs() {
+			return api.getUtilisateurs();
+		}
 
 		@Override
 		public Set<Groupe> getGroupe() {
@@ -278,7 +287,7 @@ public class Server {
 
 		@Override
 		public Set<Groupe> getGroupe(UtilisateurDto dto) {
-			return api.getGroupesFromUser(dto.getUtilisateur());
+			return api.getGroupes(dto.getUtilisateur());
 		}
 
 		@Override
@@ -368,22 +377,25 @@ public class Server {
 
 		@Override
 		public boolean testIfUserInGroupe(Utilisateur user, Groupe groupe) {
-			return user.getGroupes().contains(groupe);
+			for(Utilisateur u : groupe.getUtilisateurs()) {
+				if(u.getIdentifiant().equals(user.getIdentifiant())) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@Override
 		public void addUserToGroupe(AddUserToGroupeDto dto) {
-			if (!testIfUserInGroupe(dto.getUser(), dto.getGroupe())) {
-				dto.getGroupe().addUtilisateurs(dto.getUser());
-				api.setUtilisateur(dto.getUser());
-			}
+			Set<Groupe> groupes = api.getGroupes(dto.getUser());
+			groupes.add(dto.getGroupe());
+			api.setGroupes(dto.getUser(), new ArrayList<>(groupes));
 		}
 
 		@Override
 		public Utilisateur addAgent(AddAgentDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUserAgent = new Agents(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword(),
-					dto.getGroupes());
+			Utilisateur newUserAgent = new Agents(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword());
 			for (Groupe groupeLink : dto.getGroupes()) {
 				if (groupeLink.getUtilisateursSet().contains(newUserAgent)) {
 					ajoute = true;
@@ -400,8 +412,7 @@ public class Server {
 		@Override
 		public Utilisateur addUtilisateurCampus(AddUserDto dto) {
 			boolean ajoute = false;
-			Utilisateur newUserCampus = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(),
-					dto.getPassword(), dto.getGroupes());
+			Utilisateur newUserCampus = new UtilisateurCampus(dto.getNom(), dto.getPrenom(), dto.getId(), dto.getPassword());
 			for (Groupe groupeLink : dto.getGroupes()) {
 				if (groupeLink.getUtilisateursSet().contains(newUserCampus)) {
 					ajoute = true;
@@ -435,7 +446,6 @@ public class Server {
 			dto.getUser().setNom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
 			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
-			u.addGroups(api.getGroupesFromUser(u));
 			return u;
 		}
 
@@ -444,18 +454,12 @@ public class Server {
 			dto.getUser().setPrenom(dto.getNewName());
 			api.setUtilisateur(dto.getUser());
 			Utilisateur u = api.getUtilisateur(dto.getUser().getIdentifiant());
-			u.addGroups(api.getGroupesFromUser(u));
 			return u;
 		}
 
 		@Override
 		public void supprimerUtilisateur(DeleteUserDto dto) {
 			api.removeUtilisateur(dto.getUser());
-			Iterator<Groupe> listIterator = dto.getUser().getGroupes().iterator();
-			for (; listIterator.hasNext();) {
-				Groupe groupeDel = listIterator.next();
-				groupeDel.removeUtilisateurs(dto.getUser());
-			}
 		}
 
 		@Override

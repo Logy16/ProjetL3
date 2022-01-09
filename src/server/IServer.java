@@ -246,4 +246,11 @@ public interface IServer {
 	 * @author Nemo
 	 **/
 	public Fil getFil(IntegerDto dto);
+	
+	/**
+	 * Permet d'obtenir tous les utilisateurs
+	 * @return set de tous les utilisateurs
+	 * @author Liouss
+	 **/
+	public Set<Utilisateur> getUtilisateurs();
 }

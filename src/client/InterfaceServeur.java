@@ -63,19 +63,15 @@ public class InterfaceServeur extends JFrame implements ActionListener {
 		Set<Utilisateur> listUtiBDFromGrp = null;
 		try {
 			listGroupeBD = client.getGroupe();
+			listUtiBDFromGrp = client.getUtilisateurs();
 		} catch (ClassNotFoundException | IOException e1) {
 			e1.printStackTrace();
 		}
-		for (Groupe grp : listGroupeBD) {
-			listGroupe.add(grp);
-			listUtiBDFromGrp = grp.getUtilisateursSet();
-			for (Utilisateur uti : listUtiBDFromGrp) {
-				listUtilisateur.add(uti);
-			}
-		}
+		listGroupe.addAll(listGroupeBD);
+		listUtilisateur.addAll(listUtiBDFromGrp);
 
 		// On génère les tableaux d'utilisateurs et de groupes
-		modeleUti = new ListUtilisateurTableau(listUtilisateur);
+		modeleUti = new ListUtilisateurTableau(listUtilisateur, client);
 		tableUtilisateur = new JTable(modeleUti);
 		tableUtilisateur.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tableUtilisateur.setRowHeight(25);

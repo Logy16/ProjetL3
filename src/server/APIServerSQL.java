@@ -1,5 +1,6 @@
 package server;
 
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -11,6 +12,13 @@ import global.Utilisateur;
 
 public interface APIServerSQL {
 
+	
+	
+	/**
+	 * @return Les utilisateurs
+	 * @author Liouss
+	 **/
+	public Set<Utilisateur> getUtilisateurs();
 	/**
 	 * Retourne l'utilisateur recherché à partir du nom et du prénom ATTENTION : NE
 	 * RETOURNE AUCUN GROUPE DANS L'UTILISATEUR
@@ -62,7 +70,8 @@ public interface APIServerSQL {
 	 * @author Liouss
 	 **/
 	public void removeGroupe(Groupe groupe);
-
+	
+	
 	/**
 	 * Permet d'obtenir un fil grâce à son titre
 	 * 
@@ -117,7 +126,16 @@ public interface APIServerSQL {
 	 * @return le groupe trouvé, null si rien trouvé
 	 * @author Liouss
 	 **/
-	public Set<Groupe> getGroupesFromUser(Utilisateur utilisateur);
+	public Set<Groupe> getGroupes(Utilisateur utilisateur);
+	
+	/**
+	 * Permet de set les groupes
+	 * 
+	 * @param utilisateur : l'utilisateur dont on recherche les groupes
+	 * @param groups : liste des groupes à set
+	 * @author Liouss
+	 **/
+	public void setGroupes(Utilisateur utilisateur, List<Groupe> groups);
 	
 	/**
 	 * Permet d'obtenir les groupes
