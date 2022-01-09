@@ -35,6 +35,7 @@ import global.dto.GroupeDto;
 import global.dto.IntegerDto;
 import global.dto.LireFilDto;
 import global.dto.ModifyUserDto;
+import global.dto.ResetGroupFromUserDto;
 import global.dto.SendMessageDto;
 import global.dto.SimpleDto;
 import global.dto.StringDto;
@@ -184,6 +185,10 @@ public class Server {
 					case DELETE_GROUPE:
 						DeleteGroupDto dtoDG = (DeleteGroupDto) globalDto;
 						supprimerGroupe(dtoDG);
+						break;
+					case RESET_USER_GROUPS:
+						ResetGroupFromUserDto dtor = (ResetGroupFromUserDto) globalDto;
+						resetGroupes(dtor.getUser());
 						break;
 					case DELETE_USER:
 						DeleteUserDto dtoDU = (DeleteUserDto) globalDto;
@@ -470,6 +475,13 @@ public class Server {
 			api.removeGroupe(dto.getGroupe());
 			dto.getGroupe().removeUtilisateurs(dto.getGroupe().getUtilisateurs());
 		}
+		
+		public void resetGroupes(Utilisateur u) {
+			api.setGroupes(u, new ArrayList<Groupe>());
+		
+		}
+		
+		
 
 	}
 }

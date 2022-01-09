@@ -216,6 +216,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					try {
 						client.addAgent(saisieNom.getText(), saisiePrenom.getText(), 
 								saisieUsername.getText(), pwd);
+						client.resetGroupeUser(newUser);
 						for(Groupe grp : groupesChoisis) {
 							if(grp.equals(null))
 								break;
@@ -232,6 +233,7 @@ public class UpdateUtilisateur extends JDialog implements ActionListener{
 					try {
 						client.addUtilisateurCampus(saisieNom.getText(), saisiePrenom.getText(), 
 								saisieUsername.getText(), pwd);
+						client.resetGroupeUser(newUser);
 						for(Groupe grp : groupesChoisis) {
 							if(grp.equals(null))
 								break;
