@@ -376,7 +376,7 @@ public class Server {
 		public Groupe creerGroupe(CreerGroupeDto dto) {
 			Groupe groupe = new Groupe(dto.getNom());
 			api.createGroupe(groupe);
-			return groupe;
+			return api.getGroupe(dto.getNom());
 		}
 
 		@Override
